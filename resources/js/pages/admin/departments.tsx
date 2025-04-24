@@ -1,15 +1,16 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type Department, type Program } from '@/types';
-import { Head } from '@inertiajs/react';
+import { type BreadcrumbItem } from '@/types';
+import { Head, useForm } from '@inertiajs/react';
 import { IconChevronDown } from '@tabler/icons-react';
 import { Plus, School } from 'lucide-react';
+import React, { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -18,64 +19,23 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const programs: Program[] = [
-    {
-        id: 1,
-        name: 'Bachelor of Science in Information Technology',
-        department: 'College of Arts and Science',
+export default function Departments({ departments }: { departments: any[] }) {
+    const [open, setOpen] = useState(false);
+    const { data, setData, post, processing, errors, reset } = useForm({
+        name: '',
         status: 'active',
-    },
-    {
-        id: 2,
-        name: 'Bachelor of Science in Computer Science',
-        department: 'College of Arts and Science',
-        status: 'inactive',
-    },
-];
+    });
 
-const departments: Department[] = [
-    {
-        id: 1,
-        name: 'College of Arts and Science',
-        programs: [
-            {
-                id: 1,
-                name: 'Bachelor of Science in Information Technology',
-                department: 'College of Arts and Science',
-                status: 'active',
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        post(route('admin.departments.store'), {
+            onSuccess: () => {
+                reset('name', 'status');
+                setOpen(false);
             },
-            {
-                id: 2,
-                name: 'Bachelor of Science in Computer Science',
-                department: 'College of Arts and Science',
+        });
+    };
 
-                status: 'inactive',
-            },
-        ],
-        status: 'active',
-    },
-    {
-        id: 2,
-        name: 'College of Teacher Education',
-        programs: [
-            {
-                id: 3,
-                name: 'Bachelor of Elementary Education',
-                department: 'College of Teacher Education',
-                status: 'active',
-            },
-            {
-                id: 4,
-                name: 'Bachelor of Secondary Education',
-                department: 'College of Teacher Education',
-                status: 'inactive',
-            },
-        ],
-        status: 'inactive',
-    },
-];
-
-export default function Departments() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Departments" />
@@ -100,7 +60,7 @@ export default function Departments() {
                                 </DropdownMenuGroup>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                        <Dialog>
+                        <Dialog open={open} onOpenChange={setOpen}>
                             <DialogTrigger asChild>
                                 <Button variant="outline" size="sm">
                                     <School />
@@ -110,23 +70,33 @@ export default function Departments() {
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-[425px]">
                                 <DialogHeader>
-                                    <DialogTitle>Edit profile</DialogTitle>
-                                    <DialogDescription>Make changes to your profile here. Click save when you're done.</DialogDescription>
+                                    <DialogTitle>Add Department</DialogTitle>
                                 </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label htmlFor="department" className="text-right">
-                                            Department
-                                        </Label>
-                                        <Input id="department" placeholder="College of Arts and Science" className="col-span-3" />
+                                <form onSubmit={handleSubmit}>
+                                    <div className="grid gap-4 py-4">
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label htmlFor="department" className="text-right">
+                                                Department
+                                            </Label>
+                                            <>
+                                                <Input
+                                                    id="department"
+                                                    value={data.name}
+                                                    onChange={(e) => setData('name', e.target.value)}
+                                                    placeholder="College of Arts and Science"
+                                                    className="col-span-3"
+                                                />
+                                                {errors.name && <div className="text-sm text-red-500">{errors.name}</div>}
+                                            </>
+                                        </div>
                                     </div>
-                                </div>
-                                <DialogFooter>
-                                    <Button type="submit" className="dark:text-white">
-                                        Add
-                                        <Plus />
-                                    </Button>
-                                </DialogFooter>
+                                    <DialogFooter>
+                                        <Button type="submit" className="dark:text-white" disabled={processing}>
+                                            Add
+                                            <Plus />
+                                        </Button>
+                                    </DialogFooter>
+                                </form>
                             </DialogContent>
                         </Dialog>
                     </div>
@@ -135,21 +105,22 @@ export default function Departments() {
                     <Table>
                         <TableHeader className="bg-muted sticky top-0 z-10">
                             <TableRow>
-                                <TableHead className="w-[100px]">ID</TableHead>
-                                <TableHead>Program</TableHead>
+                                <TableHead>ID</TableHead>
                                 <TableHead>Department</TableHead>
-                                <TableHead className="text-right">Status</TableHead>
+                                <TableHead>Status</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {programs.map((program) => (
-                                <TableRow key={program.id}>
-                                    <TableCell className="w-[100px]">{program.id}</TableCell>
-                                    <TableCell>{program.name}</TableCell>
-                                    <TableCell>{program.department}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Badge variant={program.status === 'active' ? 'default' : 'destructive'} className="text-xs dark:text-white">
-                                            {program.status.charAt(0).toUpperCase() + program.status.slice(1)}
+                            {departments.map((department) => (
+                                <TableRow key={department.id}>
+                                    <TableCell>{department.id}</TableCell>
+                                    <TableCell>{department.name}</TableCell>
+                                    <TableCell>
+                                        <Badge
+                                            variant={department.status === 'active' ? 'default' : 'destructive'}
+                                            className="text-xs dark:text-white"
+                                        >
+                                            {department.status.charAt(0).toUpperCase() + department.status.slice(1)}
                                         </Badge>
                                     </TableCell>
                                 </TableRow>
