@@ -48,3 +48,28 @@ export interface Program {
     department: string;
     status: 'active' | 'inactive';
 }
+export interface Department {
+    id: number;
+    name: string;
+    programs: Program[];
+    status: 'active' | 'inactive';
+}
+
+export interface Students {
+    id: number;
+    student_id: string;
+    name: string;
+    email: string;
+    department: string;
+    program: string;
+    status: 'active' | 'inactive';
+}
+
+export interface Coordinator {
+    id: number;
+    name: string;
+    email: string;
+    department: string;
+    program: string;
+    status: 'active' | 'inactive';
+}
