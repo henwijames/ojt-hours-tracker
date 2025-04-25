@@ -12,4 +12,9 @@ class Program extends Model
     {
         return $this->belongsTo(Department::class);
     }
+
+    public function coordinators()
+    {
+        return $this->belongsToMany(User::class, 'coordinator_programs', 'program_id', 'coordinator_id');
+    }
 }

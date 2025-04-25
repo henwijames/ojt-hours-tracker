@@ -45,4 +45,19 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function programs()
+    {
+        return $this->belongsToMany(Program::class, 'coordinator_programs', 'program_id', 'coordinator_id');
+    }
+
+    public function student()
+    {
+        return $this->hasOne(Student::class);
+    }
+
+    public function coordinator()
+    {
+        return $this->hasOne(Coordinator::class);
+    }
 }

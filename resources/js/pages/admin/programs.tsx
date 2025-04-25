@@ -1,3 +1,13 @@
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -10,11 +20,12 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Departments',
-        href: '/Departments',
+        title: 'Programs',
+        href: '/Programs',
     },
 ];
 
@@ -25,6 +36,9 @@ export default function Programs({ programs, departments }: { programs: any[]; d
     // State for edit modal
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingProgram, setEditingProgram] = useState<any | null>(null);
+    // State for delete alert
+    const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+    const [programToDelete, setProgramToDelete] = useState<number | null>(null);
 
     // Form for adding a new program
     const addForm = useForm({
@@ -87,9 +101,23 @@ export default function Programs({ programs, departments }: { programs: any[]; d
         setIsEditModalOpen(true);
     };
 
-    const handleDelete = (id: number) => {
-        if (confirm('Are you sure you want to delete this program?')) {
-            addForm.delete(route('admin.programs.destroy', id));
+    const handleDeleteClick = (id: number) => {
+        setProgramToDelete(id);
+        setIsDeleteAlertOpen(true);
+    };
+
+    const confirmDelete = () => {
+        if (programToDelete) {
+            addForm.delete(route('admin.programs.destroy', programToDelete), {
+                onSuccess: () => {
+                    toast.success('Program Deleted Successfully');
+                    setIsDeleteAlertOpen(false);
+                    setProgramToDelete(null);
+                },
+                onError: () => {
+                    toast.error('Failed to delete program');
+                },
+            });
         }
     };
 
@@ -114,7 +142,7 @@ export default function Programs({ programs, departments }: { programs: any[]; d
                                 </DialogHeader>
                                 <form onSubmit={handleAddSubmit}>
                                     <div className="grid gap-4 py-4">
-                                        <div className="grid grid-cols-4 items-center gap-4">
+                                        <div className="flex flex-col gap-2">
                                             <Label htmlFor="program" className="text-right">
                                                 Program
                                             </Label>
@@ -150,21 +178,10 @@ export default function Programs({ programs, departments }: { programs: any[]; d
                                                     <div className="text-sm text-red-500">{addForm.errors.department_id}</div>
                                                 )}
                                             </>
-
-                                            <Label className="text-right">Status</Label>
-                                            <>
-                                                <Select value={addForm.data.status} onValueChange={(val) => addForm.setData('status', val)}>
-                                                    <SelectTrigger className="col-span-3 w-full capitalize">{addForm.data.status}</SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="active">Active</SelectItem>
-                                                        <SelectItem value="inactive">Inactive</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </>
                                         </div>
                                     </div>
                                     <DialogFooter>
-                                        <Button type="submit" disabled={addForm.processing}>
+                                        <Button type="submit" disabled={addForm.processing} className="bg-primary hover:bg-primary/80 text-white">
                                             Add
                                         </Button>
                                     </DialogFooter>
@@ -245,11 +262,24 @@ export default function Programs({ programs, departments }: { programs: any[]; d
                         </Dialog>
                     </div>
                 </div>
+                <AlertDialog open={isDeleteAlertOpen} onOpenChange={setIsDeleteAlertOpen}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure you want to delete this program?</AlertDialogTitle>
+                            <AlertDialogDescription>This action cannot be undone. This will permanently delete the program.</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                Delete
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
                 <div className="overflow-hidden rounded-lg border">
                     <Table>
                         <TableHeader className="bg-muted sticky top-0 z-10">
                             <TableRow>
-                                <TableHead className="w-[100px]">ID</TableHead>
                                 <TableHead>Program</TableHead>
                                 <TableHead>Department</TableHead>
                                 <TableHead>Status</TableHead>
@@ -259,7 +289,6 @@ export default function Programs({ programs, departments }: { programs: any[]; d
                         <TableBody>
                             {programs.map((program) => (
                                 <TableRow key={program.id}>
-                                    <TableCell className="w-[100px]">{program.id}</TableCell>
                                     <TableCell>{program.name}</TableCell>
                                     <TableCell>{program.department.name}</TableCell>
                                     <TableCell>
@@ -271,7 +300,7 @@ export default function Programs({ programs, departments }: { programs: any[]; d
                                         <Button size="sm" variant="outline" onClick={() => handleEdit(program)}>
                                             <Pencil className="h-4 w-4" />
                                         </Button>
-                                        <Button size="sm" variant="destructive" onClick={() => handleDelete(program.id)}>
+                                        <Button size="sm" variant="destructive" onClick={() => handleDeleteClick(program.id)}>
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </TableCell>

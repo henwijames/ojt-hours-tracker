@@ -27,7 +27,7 @@ class ProgramController extends Controller
         ]);
 
         Program::create($request->all());
-        return redirect()->back()->with('success', 'Program added successfully.');
+        return redirect()->back();
     }
 
     public function update(Request $request, Program $program)
@@ -36,10 +36,18 @@ class ProgramController extends Controller
             'name' => 'required|string',
             'status' => 'required|in:active,inactive',
             'department_id' => 'required|exists:departments,id',
+            'coordinator_ids' => 'array',
+            'coordinator_ids.*' => 'exists:users,id',
         ]);
 
-        // Update the program
-        $program->update($validated);
+        $program->update([
+            'name' => $validated['name'],
+            'status' => $validated['status'],
+            'department_id' => $validated['department_id'],
+        ]);
+
+        // Sync assigned coordinators
+        $program->coordinators()->sync($validated['coordinator_ids']);
 
         return redirect()->route('admin.programs.index');
     }
@@ -48,6 +56,6 @@ class ProgramController extends Controller
     public function destroy(Program $program)
     {
         $program->delete();
-        return redirect()->back()->with('success', 'Program deleted successfully.');
+        return redirect()->back();
     }
 }

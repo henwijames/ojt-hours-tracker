@@ -25,6 +25,24 @@ class DepartmentController extends Controller
 
         Department::create($request->only('name', 'status'));
 
-        return redirect()->back()->with('success', 'Department created successfully.');
+        return redirect()->back();
+    }
+
+    public function update(Request $request, Department $department)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255|unique:departments,name,' . $department->id,
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        $department->update($request->only('name', 'status'));
+
+        return redirect()->back();
+    }
+    public function destroy(Department $department)
+    {
+        $department->delete();
+
+        return redirect()->back();
     }
 }
