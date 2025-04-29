@@ -20,7 +20,7 @@ interface StudentPieChartProps {
 export function StudentStatusChart({ title, description, data, config }: StudentPieChartProps) {
     // Calculate statistics
     const totalCount = data.reduce((sum, item) => sum + item.count, 0);
-    const primaryPercentage = ((data[0].count / totalCount) * 100).toFixed(1);
+    const primaryPercentage = totalCount > 0 ? ((data[0].count / totalCount) * 100).toFixed(1) : '0'; // If totalCount is 0, return 0%
 
     return (
         <Card className="flex flex-col">

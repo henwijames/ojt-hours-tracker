@@ -34,6 +34,13 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    role: 'admin' | 'coordinator' | 'student';
+}
+
 interface PaginatedResponse<T> {
     data: T[];
     current_page: number;
@@ -54,22 +61,6 @@ interface PageProps {
     departmentsCount: number;
     programsCount: number;
 }
-
-const UserStatusBadge = ({ status }: { status: string }) => {
-    const getVariant = () => {
-        if (status === 'active') return 'default';
-        if (status === 'inactive') return 'destructive';
-        return 'secondary';
-    };
-
-    const isPending = status === 'pending';
-
-    return (
-        <Badge variant={getVariant()} className={`text-xs capitalize dark:text-white ${isPending ? 'bg-yellow-500 text-white' : ''}`}>
-            {status}
-        </Badge>
-    );
-};
 
 export default function Dashboard() {
     const { auth, coordinators, students, coordinatorCount, studentsCount, departmentsCount, programsCount } = usePage<PageProps>().props;
@@ -154,10 +145,15 @@ export default function Dashboard() {
                                                 <TableCell>{coordinator.id}</TableCell>
                                                 <TableCell>{coordinator.name}</TableCell>
                                                 <TableCell>{coordinator.email}</TableCell>
-                                                <TableCell>{coordinator.coordinator?.department.name}</TableCell>
-                                                <TableCell>{coordinator.coordinator?.program.name}</TableCell>
+                                                <TableCell>{coordinator.department}</TableCell>
+                                                <TableCell>{coordinator.program}</TableCell>
                                                 <TableCell>
-                                                    <UserStatusBadge status={coordinator.coordinator?.status ?? 'unknown'} />
+                                                    <Badge
+                                                        variant={coordinator.status === 'active' ? 'default' : 'destructive'}
+                                                        className="text-xs dark:text-white"
+                                                    >
+                                                        {formatStatus(coordinator.status)}
+                                                    </Badge>
                                                 </TableCell>
                                             </TableRow>
                                         ))

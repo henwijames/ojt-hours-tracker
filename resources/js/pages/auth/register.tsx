@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import { Eye, EyeClosed, LoaderCircle } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 import InputError from '@/components/input-error';
@@ -32,16 +32,22 @@ interface Props {
 }
 
 export default function Register({ departments }: Props) {
-    const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
+    const { data, setData, post, processing, errors, reset } = useForm<RegisterForm>({
         name: '',
         email: '',
-        role: 'student',
+        role: '',
         password: '',
         password_confirmation: '',
         student_id: '',
         department_id: '',
         program_id: '',
     });
+
+    const [showPassword, setShowPassword] = useState(false);
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
 
     const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
 
@@ -62,7 +68,7 @@ export default function Register({ departments }: Props) {
         const dept = departments.find((department) => department.id.toString() === value);
         setSelectedDepartment(dept || null); // Update the selected department
     };
-
+    console.log('Selected Department:', data.role);
     return (
         <AuthLayout title="Create an account" description="Enter your details below to create your account">
             <Head title="Register" />
@@ -100,7 +106,6 @@ export default function Register({ departments }: Props) {
                         />
                         <InputError message={errors.email} />
                     </div>
-
                     <div className="grid gap-2">
                         <Label htmlFor="role">Role</Label>
                         <Select onValueChange={(value) => setData('role', value)} value={data.role} disabled={processing}>
@@ -118,7 +123,9 @@ export default function Register({ departments }: Props) {
                     {data.role === 'student' && (
                         <>
                             <div className="grid gap-2">
-                                <Label htmlFor="student_id">Student ID</Label>
+                                <Label htmlFor="student_id">
+                                    Student ID <span className="text-primary">*include the dash (-)</span>
+                                </Label>
                                 <Input
                                     id="student_id"
                                     type="text"
@@ -188,17 +195,27 @@ export default function Register({ departments }: Props) {
 
                     <div className="grid gap-2">
                         <Label htmlFor="password">Password</Label>
-                        <Input
-                            id="password"
-                            type="password"
-                            required
-                            tabIndex={3}
-                            autoComplete="new-password"
-                            value={data.password}
-                            onChange={(e) => setData('password', e.target.value)}
-                            disabled={processing}
-                            placeholder="Password"
-                        />
+                        <div className="relative">
+                            <Input
+                                id="password"
+                                type={showPassword ? 'text' : 'password'}
+                                required
+                                tabIndex={3}
+                                autoComplete="new-password"
+                                value={data.password}
+                                onChange={(e) => setData('password', e.target.value)}
+                                disabled={processing}
+                                placeholder="Password"
+                            />
+                            <button
+                                type="button"
+                                onClick={togglePasswordVisibility}
+                                className="absolute top-1/2 right-2 -translate-y-1/2 transform text-gray-500 hover:text-gray-700 focus:outline-none"
+                            >
+                                {showPassword ? <Eye className="h-4 w-4" /> : <EyeClosed className="h-4 w-4" />}
+                            </button>
+                        </div>
+
                         <InputError message={errors.password} />
                     </div>
 

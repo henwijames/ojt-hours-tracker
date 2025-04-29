@@ -57,12 +57,17 @@ export interface Department {
 
 export interface Students {
     id: number;
-    student_id: string;
     name: string;
     email: string;
     department: string;
     program: string;
     status: 'active' | 'inactive';
+    student?: {
+        student_id: string;
+        department: Department;
+        program: Program;
+        status: 'active' | 'pending' | 'inactive';
+    };
 }
 
 export interface Coordinator {
@@ -72,4 +77,9 @@ export interface Coordinator {
     department: string;
     program: string;
     status: 'active' | 'inactive';
+    coordinator?: {
+        department: Department;
+        program: Program;
+        status: 'active' | 'pending' | 'inactive';
+    };
 }

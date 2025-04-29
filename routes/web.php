@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Coordinator\DashboardController as CoordinatorDashboardController;
 use App\Mail\TestMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -13,19 +15,17 @@ Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
 
-Route::get('/test-mail', function () {
-    Mail::to('henryjamesribano27@gmail.com')->send(new TestMail());
-    return 'Mail sent!';
+Route::get('/force-logout', function () {
+    Auth::logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect('/');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {});
+Route::get('/coordinator/dashboard', [CoordinatorDashboardController::class, 'index'])->name('coordinator.dashboard');
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/admin/dashboard', function () {
-        return Inertia::render('admin/dashboard', [
-            'user' => Auth::user(),
-        ]);
-    })->name('dashboard');
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/admin/departments', [DepartmentController::class, 'index'])->name('admin.departments.index');
     Route::post('/admin/departments', [DepartmentController::class, 'store'])->name('admin.departments.store');
@@ -38,6 +38,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/admin/programs/{program}', [ProgramController::class, 'destroy'])->name('admin.programs.destroy');
 
     Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
+    Route::put('/admin/users/{id}', [UserController::class, 'update'])->name('admin.users.update');
 });
 
 require __DIR__ . '/settings.php';

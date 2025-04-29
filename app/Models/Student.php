@@ -10,7 +10,8 @@ class Student extends Model
         'user_id',
         'student_id',
         'department_id',
-        'program_id'
+        'program_id',
+        'status'
     ];
 
     public function user()

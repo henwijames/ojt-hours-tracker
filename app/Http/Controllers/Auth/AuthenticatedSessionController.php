@@ -21,6 +21,7 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('auth/login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
+            'pending' => session('pending'), // << ADD THIS LINE
         ]);
     }
 
@@ -33,6 +34,22 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = $request->user();
+        if ($user->role === 'student' && $user->student && $user->student->status === 'pending') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')->with('pending', true);
+        }
+
+        if ($user->role === 'coordinator' && $user->coordinator && $user->coordinator->status === 'pending') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')->with('pending', true);
+        }
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

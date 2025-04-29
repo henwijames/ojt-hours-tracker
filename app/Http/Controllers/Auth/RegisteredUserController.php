@@ -36,7 +36,7 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         // Validate the incoming request data
         $request->validate([
@@ -51,9 +51,19 @@ class RegisteredUserController extends Controller
                 'max:50',
                 'unique:students,student_id',
             ],
-            'department_id' => 'required|exists:departments,id',
-            'program_id' => 'required|exists:programs,id',
+            'department_id' => [
+                Rule::requiredIf(fn() => $request->role === 'student'),
+                'nullable',
+                'exists:departments,id',
+            ],
+            'program_id' => [
+                Rule::requiredIf(fn() => $request->role === 'student'),
+                'nullable',
+                'exists:programs,id',
+            ],
         ]);
+
+        // dd($request->all());
 
         // Create a new user
         $user = User::create([
@@ -77,13 +87,8 @@ class RegisteredUserController extends Controller
             Coordinator::create([
                 'user_id' => $user->id,
             ]);
+
+            return redirect()->route('login')->with('message', 'Your registration is pending approval by the coordinator.');
         }
-
-        // Trigger registration event and login the user
-        event(new Registered($user));
-        Auth::login($user);
-
-        // Redirect to the dashboard
-        return to_route('dashboard');
     }
 }
