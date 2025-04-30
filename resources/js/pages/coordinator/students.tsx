@@ -1,35 +1,13 @@
-import { DashboardChart } from '@/components/dashboard-chart';
-import { SectionCards } from '@/components/section-cards';
-import { StudentStatusChart } from '@/components/student-status-chart';
-import { ChartConfig } from '@/components/ui/chart';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import UserStatusBadge from '@/components/user-status-badge';
 import AppLayout from '@/layouts/app-layout';
-import { BreadcrumbItem, type Coordinator, type Students } from '@/types';
+import { BreadcrumbItem, Coordinator, Students as Student } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
-
-// Chart data
-const chartData = [
-    { month: 'January', student: 186 },
-    { month: 'February', student: 305 },
-    { month: 'March', student: 237 },
-    { month: 'April', student: 73 },
-    { month: 'May', student: 209 },
-    { month: 'June', student: 214 },
-];
-
-// Chart configurations
-const chartConfig = {
-    student: {
-        label: 'Daily OJT Logs',
-        color: '#2563eb',
-    },
-} satisfies ChartConfig;
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
+        title: 'Students',
+        href: '/coordinator/students',
     },
 ];
 
@@ -47,68 +25,25 @@ interface PageProps {
         user: { name: string; role: string };
     };
     coordinators: PaginatedResponse<Coordinator>;
-    students: PaginatedResponse<Students>;
-    coordinatorCount: number;
-    studentsCount: number;
-    departmentsCount: number;
-    programsCount: number;
+    students: PaginatedResponse<Student>;
 }
 
-export default function Dashboard() {
-    const { auth, students, coordinator, coordinatorCount, studentsCount, departmentsCount, programsCount } = usePage<PageProps>().props;
+export default function Students() {
+    const { auth, students, coordinator, departments } = usePage<PageProps>().props;
 
     const studentData = students.data ?? [];
+    console.log('Students:', students); // Log the students data to check its structure
 
-    console.log('Student Data:', studentData); // Log the student data to check its structure
+    console.log('Departments:', departments); // Log the departments data to check its structure
 
-    const user = auth.user;
-    console.log('User:', user); // Log the user data to check its structure
-
-    const activeStudentsCount = studentData.filter((student) => student.status === 'active').length;
-    const inactiveStudentsCount = studentData.filter((student) => student.status === 'inactive').length;
-    const pendingStudentsCount = studentData.filter((student) => student.status === 'pending').length;
-
-    console.log(activeStudentsCount, inactiveStudentsCount);
-    // Student status data for pie chart
-    const studentStatusData = [
-        { status: 'Active', count: activeStudentsCount, color: '#2563eb' }, // Blue color for active
-        { status: 'Inactive', count: inactiveStudentsCount, color: '#dc2626' }, // Red color for inactive
-        { status: 'Pending', count: pendingStudentsCount, color: '#D08700' }, // Yellow color for pennding
-    ];
-
-    // Calculate percentage for active students
-    const totalStudents = activeStudentsCount + inactiveStudentsCount + pendingStudentsCount;
+    console.log('Coordinator:', coordinator); // Log the coordinator data to check its structure
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
-            <div className="@container/main flex flex-1 flex-col gap-4 p-6">
-                <h1 className="m-0 text-2xl font-semibold">
-                    Welcome, <span className="text-primary capitalize">{user.role}</span> !
-                </h1>
-                <p className="text-xs uppercase">
-                    {coordinator.department?.name} - <span className="text-primary font-bold">{coordinator.program?.name}</span>
-                </p>
-
-                <div className="flex flex-col gap-4 md:gap-6">
-                    <SectionCards
-                        coordinatorCount={coordinatorCount}
-                        studentCount={studentsCount}
-                        departmentCount={departmentsCount}
-                        programCount={programsCount}
-                    />
-                </div>
-
-                <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2">
-                    <DashboardChart data={chartData} config={chartConfig} />
-
-                    <StudentStatusChart
-                        title="Student Status Distribution"
-                        description="Active vs. Inactive Students"
-                        data={studentStatusData}
-                        config={chartConfig}
-                    />
-                </div>
+            <Head title="Students | Coordinator" />
+            <div className="flex flex-col gap-4 p-4">
+                <h1 className="font-bold sm:text-lg lg:text-2xl">{coordinator.program.name}</h1>
+                <p className="-mt-4 text-gray-600 sm:text-sm lg:text-lg">Manage your students here.</p>
                 <div className="overflow-hidden rounded-lg border">
                     <Table>
                         <TableHeader className="bg-muted sticky top-0 z-10">

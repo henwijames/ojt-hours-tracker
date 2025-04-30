@@ -61,4 +61,14 @@ class User extends Authenticatable
     {
         return $this->hasOne(Coordinator::class);
     }
+
+    public function redirectToDashboard()
+    {
+        return match ($this->role) {
+            'admin' => route('admin.dashboard'),
+            'coordinator' => route('coordinator.dashboard'),
+            'student' => route('student.dashboard'),
+            default => route('dashboard'),
+        };
+    }
 }

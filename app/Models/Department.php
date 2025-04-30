@@ -15,4 +15,9 @@ class Department extends Model
     {
         return $this->hasMany(Program::class);
     }
+
+    public function coordinators()
+    {
+        return $this->hasMany(Coordinator::class);
+    }
 }

@@ -82,13 +82,21 @@ class RegisteredUserController extends Controller
             ]);
 
             // Redirect with a success message
-            return redirect()->route('login')->with('message', 'Your registration is pending approval by the coordinator.');
+            return redirect()->route('login')->with([
+                'toast' => true,
+                'type' => 'success',
+                'message' => 'Your registration is pending approval by the Coordinator.',
+            ]);
         } elseif ($request->role === 'coordinator') {
             Coordinator::create([
                 'user_id' => $user->id,
             ]);
 
-            return redirect()->route('login')->with('message', 'Your registration is pending approval by the coordinator.');
+            return redirect()->route('login')->with([
+                'toast' => true,
+                'type' => 'success',
+                'message' => 'Your registration is pending approval by the Admin.',
+            ]);
         }
     }
 }

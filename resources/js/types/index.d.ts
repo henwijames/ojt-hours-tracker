@@ -57,16 +57,26 @@ export interface Department {
 
 export interface Students {
     id: number;
+    student_id: string;
     name: string;
     email: string;
-    department: string;
-    program: string;
-    status: 'active' | 'inactive';
+    department: Department;
+    program: Program;
+    status: 'active' | 'inactive' | 'pending';
     student?: {
         student_id: string;
         department: Department;
         program: Program;
         status: 'active' | 'pending' | 'inactive';
+    };
+    user: {
+        id: number;
+        name: string;
+        email: string;
+        avatar?: string;
+        email_verified_at: string | null;
+        created_at: string;
+        updated_at: string;
     };
 }
 
@@ -75,7 +85,7 @@ export interface Coordinator {
     name: string;
     email: string;
     department: string;
-    program: string;
+    program: Program;
     status: 'active' | 'inactive';
     coordinator?: {
         department: Department;

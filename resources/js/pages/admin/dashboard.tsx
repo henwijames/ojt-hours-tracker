@@ -90,12 +90,11 @@ export default function Dashboard() {
     const inactiveStudentsCount = studentData.filter((student) => student.student?.status === 'inactive').length;
     const pendingStudentsCount = studentData.filter((student) => student.student?.status === 'pending').length;
 
-    console.log(activeStudentsCount, inactiveStudentsCount);
     // Student status data for pie chart
     const studentStatusData = [
-        { status: 'Active', count: activeStudentsCount, color: '#2563eb' }, // Blue color for active
-        { status: 'Inactive', count: inactiveStudentsCount, color: '#dc2626' }, // Red color for inactive
-        { status: 'Pending', count: pendingStudentsCount, color: '#D08700' }, // Yellow color for pennding
+        { status: 'Active', count: activeStudentsCount, color: '#2563eb' }, //
+        { status: 'Inactive', count: inactiveStudentsCount, color: '#dc2626' },
+        { status: 'Pending', count: pendingStudentsCount, color: '#D08700' },
     ];
 
     // Calculate percentage for active students

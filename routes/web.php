@@ -5,11 +5,16 @@ use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Coordinator\DashboardController as CoordinatorDashboardController;
-use App\Mail\TestMail;
+use App\Http\Controllers\Coordinator\StudentController;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -20,25 +25,59 @@ Route::get('/force-logout', function () {
     request()->session()->invalidate();
     request()->session()->regenerateToken();
     return redirect('/');
+})->name('force-logout');
+
+/*
+|--------------------------------------------------------------------------
+| Authentication Routes
+|--------------------------------------------------------------------------
+*/
+// Laravel's default auth routes would go here if you're using them
+// Route::middleware(['auth'])->group(function() { ... });
+
+/*
+|--------------------------------------------------------------------------
+| Admin Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Department Management
+    Route::controller(DepartmentController::class)->prefix('departments')->name('departments.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::put('/{department}', 'update')->name('update');
+        Route::delete('/{department}', 'destroy')->name('destroy');
+    });
+
+    // Program Management
+    Route::controller(ProgramController::class)->prefix('programs')->name('programs.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::put('/{program}', 'update')->name('update');
+        Route::delete('/{program}', 'destroy')->name('destroy');
+    });
+
+    // User Management
+    Route::controller(UserController::class)->prefix('users')->name('users.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::put('/{id}', 'update')->name('update');
+    });
 });
 
-Route::get('/coordinator/dashboard', [CoordinatorDashboardController::class, 'index'])->name('coordinator.dashboard');
+/*
+|--------------------------------------------------------------------------
+| Coordinator Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:coordinator'])->prefix('coordinator')->name('coordinator.')->group(function () {
+    Route::get('/dashboard', [CoordinatorDashboardController::class, 'index'])->name('dashboard');
 
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-    Route::get('/admin/departments', [DepartmentController::class, 'index'])->name('admin.departments.index');
-    Route::post('/admin/departments', [DepartmentController::class, 'store'])->name('admin.departments.store');
-    Route::put('/admin/departments/{department}', [DepartmentController::class, 'update'])->name('admin.departments.update');
-    Route::delete('/admin/departments/{department}', [DepartmentController::class, 'destroy'])->name('admin.departments.destroy');
-
-    Route::get('/admin/programs', [ProgramController::class, 'index'])->name('admin.programs.index');
-    Route::post('/admin/programs', [ProgramController::class, 'store'])->name('admin.programs.store');
-    Route::put('/admin/programs/{program}', [ProgramController::class, 'update'])->name('admin.programs.update');
-    Route::delete('/admin/programs/{program}', [ProgramController::class, 'destroy'])->name('admin.programs.destroy');
-
-    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
-    Route::put('/admin/users/{id}', [UserController::class, 'update'])->name('admin.users.update');
+    Route::controller(StudentController::class)->prefix('students')->name('students.')->group(function () {
+        Route::get('/', 'index')->name('index');
+    });
 });
 
 require __DIR__ . '/settings.php';

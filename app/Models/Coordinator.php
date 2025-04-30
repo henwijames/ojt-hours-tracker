@@ -26,4 +26,9 @@ class Coordinator extends Model
     {
         return $this->belongsTo(Program::class);
     }
+
+    public function students()
+    {
+        return $this->hasMany(Student::class);
+    }
 }

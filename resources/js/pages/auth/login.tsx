@@ -20,10 +20,16 @@ type LoginForm = {
 interface LoginProps {
     status?: string;
     canResetPassword: boolean;
-    pending?: boolean;
+    flash: FlashMessage;
 }
 
-export default function Login({ status, canResetPassword, pending }: LoginProps) {
+interface FlashMessage {
+    toast?: boolean;
+    message?: string;
+    type?: 'success' | 'error' | 'info' | 'warning';
+}
+
+export default function Login({ status, canResetPassword, flash }: LoginProps) {
     const [showPassword, setShowPassword] = useState(false);
 
     const togglePasswordVisibility = () => {
@@ -35,18 +41,21 @@ export default function Login({ status, canResetPassword, pending }: LoginProps)
         remember: false,
     });
 
+    // Check for flash messages when component mounts or updates
+    useEffect(() => {
+        // If there's a toast message from the backend, show it
+        if (flash?.toast && flash?.message) {
+            const toastType = flash.type || 'success';
+            toast[toastType](flash.message);
+        }
+    }, [flash]);
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         post(route('login'), {
             onFinish: () => reset('password'),
         });
     };
-
-    useEffect(() => {
-        if (pending) {
-            toast.error('Your account is pending approval by the coordinator.');
-        }
-    }, [pending]);
 
     return (
         <AuthLayout title="Log in to your account" description="Enter your email and password below to log in">

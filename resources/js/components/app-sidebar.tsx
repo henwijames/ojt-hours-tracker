@@ -26,7 +26,7 @@ export function AppSidebar() {
 
     const coordinatorNav: NavItem[] = [
         { title: 'Dashboard', href: '/coordinator/dashboard', icon: LayoutGrid },
-        { title: 'OJT Students', href: '/coordinator/students', icon: GraduationCap },
+        { title: 'Students', href: '/coordinator/students', icon: GraduationCap },
     ];
 
     const studentNav: NavItem[] = [
