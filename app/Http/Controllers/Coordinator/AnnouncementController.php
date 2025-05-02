@@ -15,7 +15,7 @@ class AnnouncementController extends Controller
      */
     public function index()
     {
-        $announcements = Auth::user()->coordinator->announcements()->with(['department', 'program'])->paginate(10);
+        $announcements = Auth::user()->coordinator->announcements()->with(['department', 'program'])->latest()->paginate(10);
         return Inertia::render('coordinator/announcements/index', [
             'announcements' => $announcements,
         ]);
