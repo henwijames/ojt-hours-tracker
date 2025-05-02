@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import type { NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { GraduationCap, LayoutGrid, School, Users } from 'lucide-react';
+import { GraduationCap, LayoutGrid, Megaphone, School, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 export function AppSidebar() {
@@ -27,6 +27,7 @@ export function AppSidebar() {
     const coordinatorNav: NavItem[] = [
         { title: 'Dashboard', href: '/coordinator/dashboard', icon: LayoutGrid },
         { title: 'Students', href: '/coordinator/students', icon: GraduationCap },
+        { title: 'Announcements', href: '/coordinator/announcements', icon: Megaphone },
     ];
 
     const studentNav: NavItem[] = [

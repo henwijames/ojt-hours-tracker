@@ -81,7 +81,6 @@ class RegisteredUserController extends Controller
                 'department_id' => $request->department_id,  // Storing the department_id
             ]);
 
-            // Redirect with a success message
             return redirect()->route('login')->with([
                 'toast' => true,
                 'type' => 'success',

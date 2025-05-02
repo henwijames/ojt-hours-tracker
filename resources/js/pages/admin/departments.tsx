@@ -23,7 +23,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Departments({ departments }: { departments: any[] }) {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { post, processing, errors, reset } = useForm({
         name: '',
         status: 'active',
     });

@@ -1,3 +1,4 @@
+import PaginationComponent from '@/components/pagination';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -7,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import UserStatusBadge from '@/components/user-status-badge';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Coordinator, Students as Student } from '@/types';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { Eye, Pencil } from 'lucide-react';
 import { useState } from 'react';
 
@@ -24,10 +25,15 @@ interface PaginatedResponse<T> {
     last_page: number;
     prev_page_url: string | null;
     next_page_url: string | null;
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
 }
 
 interface PageProps {
-    [key: string]: any; // Add index signature
+    [key: string]: any;
     auth: {
         user: { name: string; role: string };
     };
@@ -36,7 +42,7 @@ interface PageProps {
 }
 
 export default function Students() {
-    const { auth, students, coordinator, departments } = usePage<PageProps>().props;
+    const { students, coordinator } = usePage<PageProps>().props;
     const [editModal, setEditModal] = useState(false);
 
     const studentData = students.data ?? [];
@@ -47,8 +53,6 @@ export default function Students() {
     });
 
     const handleEdit = (student: Student) => {
-        console.log('Edit student:', student);
-
         editStudent.setData({
             id: String(student.id),
             status: student.status,
@@ -69,12 +73,17 @@ export default function Students() {
         });
     };
 
+    const handlePagination = (url: string | null) => {
+        if (url) {
+            router.visit(url);
+        }
+    };
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Students | Coordinator" />
             <div className="flex flex-col gap-4 p-4">
-                <h1 className="font-bold sm:text-lg lg:text-2xl">{coordinator.program.name}</h1>
-                <p className="-mt-4 text-gray-600 sm:text-sm lg:text-lg">Manage your students here.</p>
+                <h1 className="font-bold">{coordinator.program.name}</h1>
+                <p className="text-muted-foreground -mt-4 text-sm">Manage your students here.</p>
 
                 <div className="overflow-hidden rounded-lg border">
                     <Table>
@@ -138,23 +147,15 @@ export default function Students() {
                         </TableBody>
                     </Table>
                 </div>
-                <div className="mt-4 flex items-center justify-between">
-                    <div>
-                        {students?.prev_page_url && (
-                            <a href={students.prev_page_url} className="text-primary">
-                                Previous
-                            </a>
-                        )}
-                        {students?.next_page_url && (
-                            <a href={students.next_page_url} className="text-primary ml-4">
-                                Next
-                            </a>
-                        )}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                        Page {students?.current_page} of {students?.last_page}
-                    </div>
-                </div>
+
+                <PaginationComponent
+                    links={students.links}
+                    prevPageUrl={students.prev_page_url}
+                    nextPageUrl={students.next_page_url}
+                    currentPage={students.current_page}
+                    lastPage={students.last_page}
+                    handlePagination={handlePagination}
+                />
                 <Dialog open={editModal} onOpenChange={setEditModal}>
                     <DialogContent className="sm:max-w-[425px]">
                         <form onSubmit={handleSubmit}>

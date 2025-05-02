@@ -35,6 +35,10 @@ class StudentController extends Controller
 
         $student->update($request->only('status'));
 
-        return redirect()->back()->with('success', 'Student status updated successfully.');
+        return redirect()->back()->with([
+            'toast' => true,
+            'type' => 'success',
+            'message' => 'Student status updated successfully.',
+        ]);
     }
 }

@@ -93,3 +93,28 @@ export interface Coordinator {
         status: 'active' | 'pending' | 'inactive';
     };
 }
+
+export interface Announcements {
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
+    current_page: number;
+    last_page: number;
+    prev_page_url: string | null;
+    next_page_url: string | null;
+    data: Array<{
+        id: number;
+        type: string;
+        title: string;
+        body: string;
+        department: Department;
+        program: Program;
+        created_at: string;
+    }>;
+}
+
+export interface PaginatedResponse<T> {
+    announcements: Announcements;
+}

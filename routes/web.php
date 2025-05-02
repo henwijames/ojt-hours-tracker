@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Coordinator\AnnouncementController;
 use App\Http\Controllers\Coordinator\DashboardController as CoordinatorDashboardController;
 use App\Http\Controllers\Coordinator\StudentController;
 use Illuminate\Support\Facades\Auth;
@@ -78,6 +79,13 @@ Route::middleware(['auth', 'role:coordinator'])->prefix('coordinator')->name('co
     Route::controller(StudentController::class)->prefix('students')->name('students.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::put('/{student}', 'update')->name('update');
+    });
+
+    Route::controller(AnnouncementController::class)->prefix('announcements')->name('announcements.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::put('/{announcement}', 'update')->name('update');
+        Route::delete('/{announcement}', 'destroy')->name('destroy');
     });
 });
 
