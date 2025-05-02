@@ -36,6 +36,7 @@ export default function Programs({ programs, departments }: { programs: any[]; d
     // State for edit modal
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingProgram, setEditingProgram] = useState<any | null>(null);
+
     // State for delete alert
     const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
     const [programToDelete, setProgramToDelete] = useState<number | null>(null);

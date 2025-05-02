@@ -26,4 +26,15 @@ class StudentController extends Controller
             'coordinator' => $coordinator,
         ]);
     }
+
+    public function update(Request $request, Student $student)
+    {
+        $request->validate([
+            'status' => 'required|in:active,inactive,pending',
+        ]);
+
+        $student->update($request->only('status'));
+
+        return redirect()->back()->with('success', 'Student status updated successfully.');
+    }
 }

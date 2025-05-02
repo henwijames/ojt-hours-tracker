@@ -77,6 +77,7 @@ Route::middleware(['auth', 'role:coordinator'])->prefix('coordinator')->name('co
 
     Route::controller(StudentController::class)->prefix('students')->name('students.')->group(function () {
         Route::get('/', 'index')->name('index');
+        Route::put('/{student}', 'update')->name('update');
     });
 });
 

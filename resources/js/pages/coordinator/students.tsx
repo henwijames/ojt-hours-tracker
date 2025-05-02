@@ -1,8 +1,15 @@
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import UserStatusBadge from '@/components/user-status-badge';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Coordinator, Students as Student } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
+import { Eye, Pencil } from 'lucide-react';
+import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -30,13 +37,37 @@ interface PageProps {
 
 export default function Students() {
     const { auth, students, coordinator, departments } = usePage<PageProps>().props;
+    const [editModal, setEditModal] = useState(false);
 
     const studentData = students.data ?? [];
-    console.log('Students:', students); // Log the students data to check its structure
 
-    console.log('Departments:', departments); // Log the departments data to check its structure
+    const editStudent = useForm({
+        id: '',
+        status: '',
+    });
 
-    console.log('Coordinator:', coordinator); // Log the coordinator data to check its structure
+    const handleEdit = (student: Student) => {
+        console.log('Edit student:', student);
+
+        editStudent.setData({
+            id: String(student.id),
+            status: student.status,
+        });
+
+        setEditModal(true);
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        editStudent.put(route('coordinator.students.update', { id: editStudent.data.id }), {
+            onSuccess: () => {
+                setEditModal(false);
+            },
+            onError: (errors) => {
+                console.error('Error updating student:', errors);
+            },
+        });
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -44,6 +75,7 @@ export default function Students() {
             <div className="flex flex-col gap-4 p-4">
                 <h1 className="font-bold sm:text-lg lg:text-2xl">{coordinator.program.name}</h1>
                 <p className="-mt-4 text-gray-600 sm:text-sm lg:text-lg">Manage your students here.</p>
+
                 <div className="overflow-hidden rounded-lg border">
                     <Table>
                         <TableHeader className="bg-muted sticky top-0 z-10">
@@ -54,6 +86,7 @@ export default function Students() {
                                 <TableHead>Department</TableHead>
                                 <TableHead>Program</TableHead>
                                 <TableHead>Status</TableHead>
+                                <TableHead>Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -68,6 +101,31 @@ export default function Students() {
                                         <TableCell>
                                             <UserStatusBadge status={student.status} />
                                         </TableCell>
+                                        <TableCell className="w-[100px]">
+                                            <div className="flex items-center gap-2">
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button size="sm" variant="outline">
+                                                            <Eye className="h-4 w-4" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p className="text-white">View</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button size="sm" variant="outline" onClick={() => handleEdit(student)}>
+                                                            <Pencil className="h-4 w-4" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p className="text-white">Edit</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </div>
+                                        </TableCell>
                                     </TableRow>
                                 ))
                             ) : (
@@ -76,7 +134,7 @@ export default function Students() {
                                         No students found.
                                     </TableCell>
                                 </TableRow>
-                            )}{' '}
+                            )}
                         </TableBody>
                     </Table>
                 </div>
@@ -97,6 +155,32 @@ export default function Students() {
                         Page {students?.current_page} of {students?.last_page}
                     </div>
                 </div>
+                <Dialog open={editModal} onOpenChange={setEditModal}>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <form onSubmit={handleSubmit}>
+                            <DialogHeader>
+                                <DialogTitle>Edit Student Status</DialogTitle>
+                                <DialogDescription>Make changes to your profile here. Click save when you're done.</DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <Label htmlFor="status">Status</Label>
+                                <Select value={editStudent.data.status} onValueChange={(val) => editStudent.setData('status', val)}>
+                                    <SelectTrigger className="col-span-3 w-full capitalize">{editStudent.data.status}</SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="active">Active</SelectItem>
+                                        <SelectItem value="inactive">Inactive</SelectItem>
+                                        <SelectItem value="pending">Pending</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <DialogFooter>
+                                <Button type="submit" className="text-white">
+                                    Save changes
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
             </div>
         </AppLayout>
     );
