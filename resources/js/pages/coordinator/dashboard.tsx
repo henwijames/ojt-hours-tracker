@@ -1,4 +1,5 @@
 import { DashboardChart } from '@/components/dashboard-chart';
+import PaginationComponent from '@/components/pagination';
 import { SectionCards } from '@/components/section-cards';
 import { StudentStatusChart } from '@/components/student-status-chart';
 import { ChartConfig } from '@/components/ui/chart';
@@ -6,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import UserStatusBadge from '@/components/user-status-badge';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, type Coordinator, type Students } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 
 // Chart data
 const chartData = [
@@ -39,6 +40,11 @@ interface PaginatedResponse<T> {
     last_page: number;
     prev_page_url: string | null;
     next_page_url: string | null;
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
 }
 
 interface PageProps {
@@ -76,8 +82,11 @@ export default function Dashboard() {
         { status: 'Pending', count: pendingStudentsCount, color: '#D08700' }, // Yellow color for pennding
     ];
 
-    // Calculate percentage for active students
-    const totalStudents = activeStudentsCount + inactiveStudentsCount + pendingStudentsCount;
+    const handlePagination = (url: string | null) => {
+        if (url) {
+            router.visit(url);
+        }
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -145,23 +154,14 @@ export default function Dashboard() {
                         </TableBody>
                     </Table>
                 </div>
-                <div className="mt-4 flex items-center justify-between">
-                    <div>
-                        {students?.prev_page_url && (
-                            <a href={students.prev_page_url} className="text-primary">
-                                Previous
-                            </a>
-                        )}
-                        {students?.next_page_url && (
-                            <a href={students.next_page_url} className="text-primary ml-4">
-                                Next
-                            </a>
-                        )}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                        Page {students?.current_page} of {students?.last_page}
-                    </div>
-                </div>
+                <PaginationComponent
+                    links={students?.links}
+                    prevPageUrl={students?.prev_page_url}
+                    nextPageUrl={students?.next_page_url}
+                    currentPage={students?.current_page}
+                    lastPage={students?.last_page}
+                    handlePagination={handlePagination}
+                />
             </div>
         </AppLayout>
     );

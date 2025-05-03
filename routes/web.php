@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Coordinator\AnnouncementController;
 use App\Http\Controllers\Coordinator\DashboardController as CoordinatorDashboardController;
 use App\Http\Controllers\Coordinator\StudentController;
+use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -28,13 +29,7 @@ Route::get('/force-logout', function () {
     return redirect('/');
 })->name('force-logout');
 
-/*
-|--------------------------------------------------------------------------
-| Authentication Routes
-|--------------------------------------------------------------------------
-*/
-// Laravel's default auth routes would go here if you're using them
-// Route::middleware(['auth'])->group(function() { ... });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -42,30 +37,14 @@ Route::get('/force-logout', function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Department Management
-    Route::controller(DepartmentController::class)->prefix('departments')->name('departments.')->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::post('/', 'store')->name('store');
-        Route::put('/{department}', 'update')->name('update');
-        Route::delete('/{department}', 'destroy')->name('destroy');
-    });
-
-    // Program Management
-    Route::controller(ProgramController::class)->prefix('programs')->name('programs.')->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::post('/', 'store')->name('store');
-        Route::put('/{program}', 'update')->name('update');
-        Route::delete('/{program}', 'destroy')->name('destroy');
-    });
-
-    // User Management
-    Route::controller(UserController::class)->prefix('users')->name('users.')->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::put('/{id}', 'update')->name('update');
-    });
+    //Resource Routes
+    Route::resource('departments', DepartmentController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('programs', ProgramController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('users', UserController::class)->only(['index', 'update']);
 });
 
 /*
@@ -76,17 +55,19 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 Route::middleware(['auth', 'role:coordinator'])->prefix('coordinator')->name('coordinator.')->group(function () {
     Route::get('/dashboard', [CoordinatorDashboardController::class, 'index'])->name('dashboard');
 
-    Route::controller(StudentController::class)->prefix('students')->name('students.')->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::put('/{student}', 'update')->name('update');
-    });
+    Route::resource('students', StudentController::class)->only(['index', 'update']);
 
-    Route::controller(AnnouncementController::class)->prefix('announcements')->name('announcements.')->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::post('/', 'store')->name('store');
-        Route::put('/{announcement}', 'update')->name('update');
-        Route::delete('/{announcement}', 'destroy')->name('destroy');
-    });
+    Route::resource('announcements', AnnouncementController::class)->only(['index', 'store', 'update', 'destroy']);
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Student Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
+    Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
 });
 
 require __DIR__ . '/settings.php';

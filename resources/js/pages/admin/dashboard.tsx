@@ -30,7 +30,7 @@ const chartConfig = {
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
-        href: '/dashboard',
+        href: '/admin/dashboard',
     },
 ];
 
@@ -96,9 +96,6 @@ export default function Dashboard() {
         { status: 'Inactive', count: inactiveStudentsCount, color: '#dc2626' },
         { status: 'Pending', count: pendingStudentsCount, color: '#D08700' },
     ];
-
-    // Calculate percentage for active students
-    const totalStudents = activeStudentsCount + inactiveStudentsCount + pendingStudentsCount;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

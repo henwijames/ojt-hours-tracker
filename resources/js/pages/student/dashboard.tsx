@@ -1,0 +1,130 @@
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem } from '@/types';
+import { formatNumber } from '@/utils/number';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { Building, Clock, Plus } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Dashboard',
+        href: '/admin/dashboard',
+    },
+];
+
+interface PageProps {
+    [key: string]: any; // Add index signature
+    auth: {
+        user: { name: string; role: string };
+    };
+}
+
+export default function Dashboard() {
+    const { auth } = usePage<PageProps>().props;
+    const [progress, setProgress] = useState(0);
+
+    const user = auth.user;
+
+    let progressValue = (393 / 486) * 100;
+
+    useEffect(() => {
+        const timer = setTimeout(() => setProgress(formatNumber(progressValue)), 500);
+        return () => clearTimeout(timer);
+    }, []);
+
+    return (
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Dashboard" />
+            <div className="@container/main flex flex-1 flex-col gap-4 p-6">
+                <h1 className="mb-2 text-2xl font-semibold">
+                    Welcome, <span className="text-primary capitalize">{user.name}</span> !
+                </h1>
+                <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-2">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>OJT Summary</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h2 className="text-primary text-xs dark:text-gray-50">OJT Hours</h2>
+                                    <p className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">393/486</p>
+                                </div>
+                                <Clock className="h-12 w-12" strokeWidth={1} />
+                            </div>
+
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between text-xs">
+                                    <span className="text-muted-foreground">Progress</span>
+                                    <span className="font-medium">{progress}%</span>
+                                </div>
+                                <Progress value={progress} />
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Company Info</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex items-center justify-between">
+                            <div>
+                                <h2 className="font-bold">Virtual Bears</h2>
+                                <p className="text-xs">Status: Pending</p>
+                            </div>
+                            <Building className="h-12 w-12" strokeWidth={1} />
+                        </CardContent>
+                        <CardFooter className="h-full items-end">
+                            <Button variant="outline" className="w-full">
+                                View/Edit Submission
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Latest Announcements</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex flex-col gap-2">
+                            <div className="flex w-full items-center justify-between">
+                                <h2 className="font-bold">2ND OJT Meeting</h2>
+                                <p className="text-xs">02/05/2025</p>
+                            </div>
+                            <div className="flex w-full items-center justify-between">
+                                <h2 className="font-bold">2ND OJT Meeting</h2>
+                                <p className="text-xs">02/05/2025</p>
+                            </div>
+                        </CardContent>
+                        <CardFooter className="h-full items-end">
+                            <Button variant="outline" className="w-full">
+                                View/Edit Submission
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>My Logs</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex flex-col">
+                            <div className="flex items-center gap-2">
+                                <h2 className="font-bold">Last Log: 02/05/2025</h2>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <h2 className="font-bold">Total Logs: 50</h2>
+                            </div>
+                        </CardContent>
+                        <CardFooter className="h-full items-end">
+                            <Link href={route('student.dashboard')} className="w-full">
+                                <Button variant="outline" className="w-full">
+                                    <Plus className="h-4 w-4" />
+                                    Submit New Log
+                                </Button>
+                            </Link>
+                        </CardFooter>
+                    </Card>
+                </div>
+            </div>
+        </AppLayout>
+    );
+}

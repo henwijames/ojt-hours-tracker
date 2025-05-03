@@ -56,6 +56,10 @@ class ProgramController extends Controller
     public function destroy(Program $program)
     {
         $program->delete();
-        return redirect()->back();
+        return redirect()->back()->with([
+            'toast' => true,
+            'type' => 'success',
+            'message' => 'Program deleted successfully.',
+        ]);
     }
 }

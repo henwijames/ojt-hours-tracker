@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Departments',
-        href: '/Departments',
+        href: '/admin/departments',
     },
 ];
 
