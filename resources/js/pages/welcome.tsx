@@ -4,6 +4,7 @@ import Logo from '/public/images/lc.png';
 
 export default function Welcome() {
     const { auth } = usePage<SharedData>().props;
+    const user = auth.user;
 
     return (
         <>
@@ -16,8 +17,14 @@ export default function Welcome() {
                     <nav className="flex items-center justify-end gap-4">
                         {auth.user ? (
                             <Link
-                                href={route('dashboard')}
-                                className="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
+                                href={
+                                    user.role === 'admin'
+                                        ? route('admin.dashboard')
+                                        : user.role === 'coordinator'
+                                          ? route('coordinator.dashboard')
+                                          : route('student.dashboard')
+                                }
+                                className="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:hover:border-[#62605b]"
                             >
                                 Dashboard
                             </Link>

@@ -98,7 +98,7 @@ export default function Dashboard() {
                         </CardContent>
                         <CardFooter className="h-full items-end">
                             <Button variant="outline" className="w-full">
-                                View/Edit Submission
+                                View Announcements
                             </Button>
                         </CardFooter>
                     </Card>
