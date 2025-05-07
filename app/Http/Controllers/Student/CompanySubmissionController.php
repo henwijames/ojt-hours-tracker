@@ -17,10 +17,9 @@ class CompanySubmissionController extends Controller
      */
     public function index()
     {
-        $submission = CompanySubmission::where('student_id', Auth::user()->id)->first();
-
+        $companySubmission = CompanySubmission::where('student_id', Auth::user()->id)->first();
         return Inertia::render('student/company/index', [
-            'companySubmission' => $submission,
+            'companySubmission' => $companySubmission,
         ]);
     }
 
@@ -38,19 +37,22 @@ class CompanySubmissionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'company_name' => 'required|string',
+            'company_name' => 'required|string|max:255',
             'company_address' => 'required|string',
-            'supervisor_name' => 'required|string',
-            'supervisor_contact' => ['required', 'regex:/^[0-9]+$/'],
+            'supervisor_name' => 'required|string|max:255',
+            'supervisor_contact' => 'required|numeric',
         ]);
 
         $validated['student_id'] = Auth::id();
         $validated['submitted_at'] = now();
 
-        // dd($validated);
-        CompanySubmission::create($validated);
+        if ($request->hasFile('moa_path')) {
+            $validate['moa_path'] = $request->file('moa_path')->store('moa', 'public');
+        }
 
-        return redirect()->route('student.company.index')->with([
+        CompanySubmission::create($validate);
+
+        return redirect()->back()->with([
             'toast' => true,
             'type' => 'success',
             'message' => 'Company submission created successfully.',
@@ -68,17 +70,55 @@ class CompanySubmissionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit()
     {
-        //
+        $companySubmission = CompanySubmission::where('student_id', Auth::user()->student->id)
+            ->where('status', 'rejected')
+            ->orWhere('status', 'pending')
+            ->firstOrFail();
+
+        return Inertia::render('student/company/edit', [
+            'companySubmission' => $companySubmission,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, CompanySubmission $companySubmission)
     {
-        //
+        // Ensure the company submission belongs to the authenticated student
+        if ($companySubmission->student_id !== Auth::user()->id) {
+            abort(403);
+        }
+
+        // Ensure the submission is in a state that can be updated
+        if (!in_array($companySubmission->status, ['rejected', 'pending'])) {
+            abort(403);
+        }
+
+        $validate = $request->validate([
+            'company_name' => 'required|string|max:255',
+            'company_address' => 'required|string',
+            'supervisor_name' => 'required|string|max:255',
+            'supervisor_contact' => 'required|numeric',
+            'moa_path' => 'nullable|file|mimes:pdf|max:10240',
+        ]);
+
+        $validate['status'] = 'pending';
+        $validate['submitted_at'] = now();
+
+        if ($request->hasFile('moa_path')) {
+            $validate['moa_path'] = $request->file('moa_path')->store('moa', 'public');
+        }
+
+        $companySubmission->update($validate);
+
+        return redirect()->route('student.company.index')->with([
+            'toast' => true,
+            'type' => 'success',
+            'message' => 'Company submission updated successfully.',
+        ]);
     }
 
     /**

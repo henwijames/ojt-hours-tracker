@@ -33,4 +33,9 @@ class Student extends Model
     {
         return $this->belongsTo(Coordinator::class);
     }
+
+    public function companySubmission()
+    {
+        return $this->hasOne(CompanySubmission::class, 'student_id');
+    }
 }

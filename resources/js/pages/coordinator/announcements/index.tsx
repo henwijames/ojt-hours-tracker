@@ -30,8 +30,6 @@ export default function Announcements({ announcements }: PaginatedResponse<Annou
         type: 'announcement',
     });
 
-    const announcementData = announcements ?? [];
-
     const addModal = (e: FormEvent) => {
         e.preventDefault();
         console.log('Add Modal Opened');

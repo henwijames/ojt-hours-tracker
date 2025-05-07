@@ -13,6 +13,7 @@ export default function CompanySubmissionForm({ isDialogOpen }: CompanySubmissio
         company_address: '',
         supervisor_name: '',
         supervisor_contact: '',
+        moa_path: null as File | null,
     });
 
     const handleSubmit = (e: React.FormEvent) => {

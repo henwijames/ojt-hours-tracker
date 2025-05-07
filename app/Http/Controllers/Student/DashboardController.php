@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\CompanySubmission;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -13,7 +15,10 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        return Inertia::render('student/dashboard');
+        $submission = CompanySubmission::where('student_id', Auth::user()->id)->first();
+        return Inertia::render('student/dashboard', [
+            'companySubmission' => $submission,
+        ]);
     }
 
     /**

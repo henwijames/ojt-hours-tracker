@@ -4,7 +4,7 @@ import { Progress } from '@/components/ui/progress';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { formatNumber } from '@/utils/number';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { Building, Clock, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -15,25 +15,39 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-interface PageProps {
-    [key: string]: any; // Add index signature
+interface PageProps<T = object> {
     auth: {
-        user: { name: string; role: string };
+        user: {
+            name: string;
+            role: string;
+        };
+    };
+    props: T;
+    companySubmission: {
+        id: number;
+        company_name: string;
+        company_address: string;
+        supervisor_name: string;
+        supervisor_contact: number;
+        submitted_at: string;
+        status: string;
     };
 }
 
-export default function Dashboard() {
-    const { auth } = usePage<PageProps>().props;
+export default function Dashboard({ auth, companySubmission }: PageProps) {
     const [progress, setProgress] = useState(0);
 
     const user = auth.user;
 
-    let progressValue = (393 / 486) * 100;
+    const companyData = companySubmission;
+    console.log(companyData);
+
+    const progressValue = (393 / 486) * 100;
 
     useEffect(() => {
         const timer = setTimeout(() => setProgress(formatNumber(progressValue)), 500);
         return () => clearTimeout(timer);
-    }, []);
+    }, [progressValue]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -71,15 +85,17 @@ export default function Dashboard() {
                         </CardHeader>
                         <CardContent className="flex items-center justify-between">
                             <div>
-                                <h2 className="font-bold">Virtual Bears</h2>
-                                <p className="text-xs">Status: Pending</p>
+                                <h2 className="font-bold">{companyData.company_name}</h2>
+                                <p className="text-xs capitalize">Status: {companyData.status}</p>
                             </div>
                             <Building className="h-12 w-12" strokeWidth={1} />
                         </CardContent>
                         <CardFooter className="h-full items-end">
-                            <Button variant="outline" className="w-full">
-                                View/Edit Submission
-                            </Button>
+                            <Link href={route('student.company.index')} className="w-full cursor-pointer">
+                                <Button variant="outline" className="w-full">
+                                    View/Edit Company
+                                </Button>
+                            </Link>
                         </CardFooter>
                     </Card>
                     <Card>

@@ -28,12 +28,14 @@ export function AppSidebar() {
         { title: 'Dashboard', href: '/coordinator/dashboard', icon: LayoutGrid },
         { title: 'Students', href: '/coordinator/students', icon: GraduationCap },
         { title: 'Announcements', href: '/coordinator/announcements', icon: Megaphone },
+        { title: 'Company Submissions', href: '/coordinator/company-submissions', icon: Building },
     ];
 
     const studentNav: NavItem[] = [
         { title: 'Dashboard', href: '/student/dashboard', icon: LayoutGrid },
         { title: 'My OJT Hours', href: '/student/ojt-hours', icon: GraduationCap },
         { title: 'Company', href: '/student/company/', icon: Building },
+        { title: 'Announcements', href: '/student/announcements', icon: Megaphone },
     ];
 
     let mainNavItems: NavItem[] = [];
