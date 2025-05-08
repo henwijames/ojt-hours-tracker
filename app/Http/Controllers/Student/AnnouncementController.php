@@ -13,6 +13,7 @@ class AnnouncementController extends Controller
     public function index()
     {
         $announcements = Announcements::where('program_id', Auth::user()->student->program_id)
+            ->where('type', 'announcement')
             ->with(['department', 'program'])
             ->latest()
             ->paginate(5);

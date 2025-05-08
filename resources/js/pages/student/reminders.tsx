@@ -9,16 +9,16 @@ import { AlertCircle, Bell, Calendar, Clock } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Announcements',
-        href: '/student/announcements',
+        title: 'Reminders',
+        href: '/student/reminders',
     },
 ];
 
-interface Announcement {
+interface Reminders {
     id: number;
     title: string;
     body: string;
-    type: 'announcement' | 'reminder';
+    type: 'reminder';
     department: {
         name: string;
     };
@@ -29,8 +29,8 @@ interface Announcement {
 }
 
 interface PageProps {
-    announcements: {
-        data: Announcement[];
+    reminders: {
+        data: Reminders[];
         links: {
             url: string | null;
             label: string;
@@ -45,11 +45,9 @@ interface PageProps {
 
 type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline';
 
-export default function Announcements({ announcements }: PageProps) {
+export default function Reminders({ reminders }: PageProps) {
     function getVariant(type: string): BadgeVariant {
         switch (type) {
-            case 'announcement':
-                return 'default';
             case 'reminder':
                 return 'secondary';
             default:
@@ -59,8 +57,6 @@ export default function Announcements({ announcements }: PageProps) {
 
     function getIcon(type: string) {
         switch (type) {
-            case 'announcement':
-                return <Bell className="mr-1 h-3.5 w-3.5" />;
             case 'reminder':
                 return <Clock className="mr-1 h-3.5 w-3.5" />;
             default:
@@ -76,53 +72,53 @@ export default function Announcements({ announcements }: PageProps) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Announcements | Student" />
+            <Head title="Reminders | Student" />
             <div className="from-background to-muted/20 @container/main flex flex-1 flex-col gap-6 bg-gradient-to-br p-6">
                 <div className="w-full space-y-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-2xl font-bold tracking-tight">Announcements</h1>
-                            <p className="text-muted-foreground mt-1 text-sm">Stay updated with the latest announcements from your department.</p>
+                            <h1 className="text-2xl font-bold tracking-tight">Reminders</h1>
+                            <p className="text-muted-foreground mt-1 text-sm">Stay updated with the latest reminders from your department.</p>
                         </div>
                     </div>
 
                     <div className="grid gap-4">
-                        {announcements.data.length === 0 ? (
+                        {reminders.data.length === 0 ? (
                             <Card>
                                 <CardContent className="flex flex-col items-center justify-center py-12">
                                     <Bell className="text-muted-foreground mb-4 h-12 w-12" />
-                                    <p className="text-muted-foreground text-center text-sm">No announcements available at the moment.</p>
+                                    <p className="text-muted-foreground text-center text-sm">No reminders available at the moment.</p>
                                 </CardContent>
                             </Card>
                         ) : (
-                            announcements.data.map((announcement) => (
-                                <Card key={announcement.id} className="transition-all duration-200 hover:shadow-md">
+                            reminders.data.map((reminder) => (
+                                <Card key={reminder.id} className="transition-all duration-200 hover:shadow-md">
                                     <CardHeader className="pb-2">
                                         <div className="flex items-start justify-between">
                                             <div className="space-y-1">
-                                                <CardTitle className="text-xl font-semibold">{announcement.title}</CardTitle>
+                                                <CardTitle className="text-xl font-semibold">{reminder.title}</CardTitle>
                                                 <div className="text-muted-foreground flex items-center gap-2 text-sm">
                                                     <Calendar className="h-3.5 w-3.5" />
-                                                    <span>{formatDate(announcement.created_at)}</span>
+                                                    <span>{formatDate(reminder.created_at)}</span>
                                                 </div>
                                             </div>
                                             <Badge
-                                                variant={getVariant(announcement.type)}
+                                                variant={getVariant(reminder.type)}
                                                 className="ml-2 flex items-center px-2 py-1 text-xs font-medium capitalize"
                                             >
-                                                {getIcon(announcement.type)}
-                                                {announcement.type}
+                                                {getIcon(reminder.type)}
+                                                {reminder.type}
                                             </Badge>
                                         </div>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
-                                        <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap">{announcement.body}</p>
+                                        <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap">{reminder.body}</p>
                                         <div className="text-muted-foreground flex flex-wrap gap-2 text-xs">
                                             <Badge variant="outline" className="font-normal">
-                                                {announcement.department.name}
+                                                {reminder.department.name}
                                             </Badge>
                                             <Badge variant="outline" className="font-normal">
-                                                {announcement.program.name}
+                                                {reminder.program.name}
                                             </Badge>
                                         </div>
                                     </CardContent>
@@ -131,13 +127,13 @@ export default function Announcements({ announcements }: PageProps) {
                         )}
                     </div>
 
-                    {announcements.data.length > 0 && (
+                    {reminders.data.length > 0 && (
                         <PaginationComponent
-                            links={announcements.links}
-                            prevPageUrl={announcements.prev_page_url}
-                            nextPageUrl={announcements.next_page_url}
-                            currentPage={announcements.current_page}
-                            lastPage={announcements.last_page}
+                            links={reminders.links}
+                            prevPageUrl={reminders.prev_page_url}
+                            nextPageUrl={reminders.next_page_url}
+                            currentPage={reminders.current_page}
+                            lastPage={reminders.last_page}
                             handlePagination={handlePagination}
                         />
                     )}

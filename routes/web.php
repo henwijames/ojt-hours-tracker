@@ -10,9 +10,11 @@ use App\Http\Controllers\Coordinator\DashboardController as CoordinatorDashboard
 use App\Http\Controllers\Coordinator\StudentController;
 use App\Http\Controllers\Student\CompanySubmissionController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Models\Announcements;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\Student\TimeRecordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,7 +62,7 @@ Route::middleware(['auth', 'role:coordinator'])->prefix('coordinator')->name('co
     Route::resource('students', StudentController::class)->only(['index', 'update']);
     Route::resource('announcements', AnnouncementController::class)->only(['index', 'store', 'update', 'destroy']);
 
-    Route::controller(\App\Http\Controllers\Coordinator\CompanySubmissionController::class)
+    Route::controller(CompanySubmissionController::class)
         ->prefix('company-submissions')
         ->name('company-submissions.')
         ->group(function () {
@@ -88,6 +90,23 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 
     Route::controller(StudentAnnouncementController::class)->prefix('announcements')->name('announcements.')->group(function () {
         Route::get('/', 'index')->name('index');
+    });
+
+    Route::get('/reminders', function () {
+        $reminders = Announcements::where('program_id', Auth::user()->student->program_id)
+            ->where('type', 'reminder')
+            ->with(['department', 'program'])
+            ->latest()
+            ->paginate(5);
+        return Inertia::render('student/reminders', [
+            'reminders' => $reminders,
+        ]);
+    })->name('reminders');
+
+    Route::controller(TimeRecordController::class)->prefix('time-records')->name('time-records.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/time-in', 'timeIn')->name('time-in');
+        Route::post('/time-out', 'timeOut')->name('time-out');
     });
 });
 

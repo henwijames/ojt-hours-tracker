@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import type { NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Building, GraduationCap, LayoutGrid, Megaphone, School, Users } from 'lucide-react';
+import { Bell, Building, Clock, GraduationCap, LayoutGrid, Megaphone, School, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 export function AppSidebar() {
@@ -33,9 +33,10 @@ export function AppSidebar() {
 
     const studentNav: NavItem[] = [
         { title: 'Dashboard', href: '/student/dashboard', icon: LayoutGrid },
-        { title: 'My OJT Hours', href: '/student/ojt-hours', icon: GraduationCap },
+        { title: 'Time Record', href: '/student/time-records', icon: Clock },
         { title: 'Company', href: '/student/company/', icon: Building },
         { title: 'Announcements', href: '/student/announcements', icon: Megaphone },
+        { title: 'Reminders', href: '/student/reminders', icon: Bell },
     ];
 
     let mainNavItems: NavItem[] = [];

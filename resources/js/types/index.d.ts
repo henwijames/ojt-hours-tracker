@@ -3,6 +3,10 @@ import type { Config } from 'ziggy-js';
 
 export interface Auth {
     user: User;
+    isStudent: boolean;
+    isCoordinator: boolean;
+    isAdmin: boolean;
+    student: Students;
 }
 
 export interface BreadcrumbItem {
@@ -115,6 +119,22 @@ export interface Announcements {
     }>;
 }
 
-export interface PaginatedResponse<T> {
+export interface PaginatedResponse<> {
     announcements: Announcements;
+}
+
+export interface TimeRecord {
+    id: number;
+    student_id: number;
+    time_in: string | null;
+    time_out: string | null;
+    date: string;
+    time_in_image: string | null;
+    time_out_image: string | null;
+    required_hours: number;
+    completed_hours: number | null;
+    remarks: string | null;
+    created_at: string;
+    updated_at: string;
+    student?: Student;
 }

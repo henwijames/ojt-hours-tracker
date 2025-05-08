@@ -22,7 +22,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 type ProfileForm = {
     name: string;
     email: string;
-}
+    student_id: string;
+};
 
 export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
     const { auth } = usePage<SharedData>().props;
@@ -30,6 +31,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<Required<ProfileForm>>({
         name: auth.user.name,
         email: auth.user.email,
+        student_id: auth.student.student_id,
     });
 
     const submit: FormEventHandler = (e) => {
@@ -81,6 +83,23 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
                             <InputError className="mt-2" message={errors.email} />
                         </div>
+                        {auth.isStudent && (
+                            <div className="grid gap-2">
+                                <Label htmlFor="student_id">Student ID</Label>
+
+                                <Input
+                                    id="student_id"
+                                    type="text"
+                                    className="mt-1 block w-full"
+                                    value={data.student_id}
+                                    onChange={(e) => setData('student_id', e.target.value)}
+                                    required
+                                    placeholder="Student ID"
+                                />
+
+                                <InputError className="mt-2" message={errors.email} />
+                            </div>
+                        )}
 
                         {mustVerifyEmail && auth.user.email_verified_at === null && (
                             <div>
