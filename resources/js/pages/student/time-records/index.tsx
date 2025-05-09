@@ -1,18 +1,17 @@
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Progress } from '@/components/ui/progress';
 import AppLayout from '@/layouts/app-layout';
-import { cn } from '@/lib/utils';
 import { BreadcrumbItem, TimeRecord } from '@/types';
 import { formatNumber } from '@/utils/number';
 import { Head, useForm } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import { FormEventHandler, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -29,20 +28,86 @@ interface PageProps {
         links: { label: string; url: string | null; active: boolean }[];
     };
     required_hours: number;
+    completed_hours: number;
+    time_in: TimeRecord;
 }
 
-export default function TimeRecords({ timeRecords, required_hours }: PageProps) {
-    const [date, setDate] = useState<Date | undefined>(new Date());
-    const [progress, setProgress] = useState(0);
-    const { data, setData } = useForm({
-        hours: required_hours,
+type TimeInForm = {
+    image: File | null;
+};
+
+export default function TimeRecords({ timeRecords, required_hours, completed_hours, time_in }: PageProps) {
+    const { setData, post, processing, errors } = useForm<TimeInForm>({
+        image: null,
     });
 
+    const [isTimeInOpen, setIsTimeInOpen] = useState(false);
+    const [isTimeOutOpen, setIsTimeOutOpen] = useState(false);
+    const [progress, setProgress] = useState(0);
+    const [currentTime, setCurrentTime] = useState(new Date());
+    const fileRef = useRef<HTMLInputElement>(null);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setData('image', file);
+        }
+
+        if (!file || !file.type.startsWith('image/')) {
+            toast.error('Please upload a valid image file');
+            if (fileRef.current) {
+                fileRef.current.value = '';
+            }
+        }
+    };
+
+    const handleTimeInDialogClose = () => {
+        setIsTimeInOpen(false);
+        if (fileRef.current) {
+            fileRef.current.value = '';
+        }
+        setData('image', null);
+    };
+
+    const handleTimeOutDialogClose = () => {
+        setIsTimeOutOpen(false);
+        if (fileRef.current) {
+            fileRef.current.value = '';
+        }
+        setData('image', null);
+    };
+
     const hours = required_hours;
-    console.log(hours);
+
     useEffect(() => {
-        setProgress(timeRecords.data.length);
-    }, [timeRecords]);
+        setProgress((completed_hours / hours) * 100);
+    }, [completed_hours, hours]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    const timeInSubmit: FormEventHandler = (e) => {
+        e.preventDefault();
+        post(route('student.time-records.time-in'), {
+            onSuccess: () => {
+                handleTimeInDialogClose();
+            },
+        });
+    };
+
+    const timeOutSubmit: FormEventHandler = (e) => {
+        e.preventDefault();
+        post(route('student.time-records.time-out'), {
+            onSuccess: () => {
+                handleTimeOutDialogClose();
+            },
+        });
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -60,17 +125,11 @@ export default function TimeRecords({ timeRecords, required_hours }: PageProps) 
                                         <p className="text-sm font-medium">Remaining Hours: {formatNumber(hours - timeRecords.data.length)}</p>
                                         <Progress value={progress} />
                                         <div className="flex justify-between">
-                                            <p className="text-sm font-medium">{Number(progress)} hours completed</p>
+                                            <p className="text-sm font-medium">{formatNumber(progress)}% completed</p>
                                             <p className="text-sm font-medium">{formatNumber(hours)} hours required</p>
                                         </div>
                                         <Label htmlFor="hours">Total Required Hours</Label>
-                                        <Input
-                                            id="hours"
-                                            type="number"
-                                            value={`${Number(data.hours)}`}
-                                            onChange={(e) => setData('hours', Number(e.target.value))}
-                                            placeholder="Enter hours"
-                                        />
+                                        <Input id="hours" type="number" value={`${Number(hours)}`} placeholder="Enter hours" readOnly />
                                     </div>
                                 </div>
                             </CardContent>
@@ -82,21 +141,82 @@ export default function TimeRecords({ timeRecords, required_hours }: PageProps) 
                             <CardContent>
                                 <div className="flex flex-col gap-4">
                                     <div className="flex flex-col gap-2">
-                                        <Label htmlFor="date">Date</Label>
-                                        <Popover>
-                                            <PopoverTrigger id="date" asChild>
-                                                <Button
-                                                    variant={'outline'}
-                                                    className={cn('w-full justify-between text-left font-normal', !date && 'text-muted-foreground')}
-                                                >
-                                                    {date ? format(date, 'PPP') : <span>Pick a date</span>}
-                                                    <CalendarIcon />
+                                        <h1 className="text-center text-2xl font-bold">{format(currentTime, 'hh:mm:ss a')}</h1>
+                                        <p className="text-center">{time_in === null ? 'Not Clocked In' : 'Clocked In'}</p>
+                                    </div>
+                                    <div className="flex h-full items-end justify-between gap-2">
+                                        <Dialog open={isTimeInOpen} onOpenChange={setIsTimeInOpen}>
+                                            <DialogTrigger asChild>
+                                                <Button variant="default" className="flex-grow">
+                                                    Clock In
                                                 </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0" align="start">
-                                                <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
-                                            </PopoverContent>
-                                        </Popover>
+                                            </DialogTrigger>
+                                            <DialogContent className="sm:max-w-[425px]">
+                                                <DialogHeader>
+                                                    <DialogTitle>Proof of Time In</DialogTitle>
+                                                    <DialogDescription>Submit an image as proof of attendance.</DialogDescription>
+                                                </DialogHeader>
+                                                <form onSubmit={timeInSubmit}>
+                                                    <div className="grid w-full max-w-sm items-center gap-1.5">
+                                                        <Label htmlFor="picture">Picture</Label>
+                                                        <Input
+                                                            id="picture"
+                                                            ref={fileRef}
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={handleFileChange}
+                                                            aria-label="Upload time in proof"
+                                                        />
+                                                        {errors.image && <p className="text-red-500">{errors.image}</p>}
+                                                    </div>
+                                                    <DialogFooter className="mt-2">
+                                                        <Button type="submit" disabled={processing}>
+                                                            Submit
+                                                            {processing && <Loader2 className="h-4 w-4 animate-spin" />}
+                                                        </Button>
+                                                    </DialogFooter>
+                                                </form>
+                                            </DialogContent>
+                                        </Dialog>
+                                        {time_in === null ? (
+                                            <Button variant="default" className="flex-grow" disabled>
+                                                Clock out
+                                            </Button>
+                                        ) : (
+                                            <Dialog open={isTimeOutOpen} onOpenChange={setIsTimeOutOpen}>
+                                                <DialogTrigger asChild>
+                                                    <Button variant="outline" className="flex-grow">
+                                                        Clock out
+                                                    </Button>
+                                                </DialogTrigger>
+                                                <DialogContent className="sm:max-w-[425px]">
+                                                    <DialogHeader>
+                                                        <DialogTitle>Proof of Time Out</DialogTitle>
+                                                        <DialogDescription>Submit an image as proof of attendance.</DialogDescription>
+                                                    </DialogHeader>
+                                                    <form onSubmit={timeOutSubmit}>
+                                                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                                                            <Label htmlFor="picture">Picture</Label>
+                                                            <Input
+                                                                id="picture"
+                                                                ref={fileRef}
+                                                                type="file"
+                                                                accept="image/*"
+                                                                onChange={handleFileChange}
+                                                                aria-label="Upload time out proof"
+                                                            />
+                                                            {errors.image && <p className="text-red-500">{errors.image}</p>}
+                                                        </div>
+                                                        <DialogFooter className="mt-2">
+                                                            <Button type="submit" disabled={processing}>
+                                                                Submit
+                                                                {processing && <Loader2 className="h-4 w-4 animate-spin" />}
+                                                            </Button>
+                                                        </DialogFooter>
+                                                    </form>
+                                                </DialogContent>
+                                            </Dialog>
+                                        )}
                                     </div>
                                 </div>
                             </CardContent>

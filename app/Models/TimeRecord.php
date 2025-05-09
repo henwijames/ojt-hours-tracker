@@ -26,18 +26,4 @@ class TimeRecord extends Model
   {
     return $this->belongsTo(Student::class, 'user_id');
   }
-
-  protected static function boot()
-  {
-    parent::boot();
-
-    static::saving(function ($record) {
-      if ($record->time_in && $record->time_out) {
-        $timeIn = \Carbon\Carbon::parse($record->time_in);
-        $timeOut = \Carbon\Carbon::parse($record->time_out);
-        $hours = $timeOut->diffInMinutes($timeIn) / 60;
-        $record->completed_hours = round($hours, 2);
-      }
-    });
-  }
 }

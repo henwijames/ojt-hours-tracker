@@ -1,31 +1,11 @@
-import { DashboardChart } from '@/components/dashboard-chart';
 import { SectionCards } from '@/components/section-cards';
-import { StudentStatusChart } from '@/components/student-status-chart';
 import { Badge } from '@/components/ui/badge';
-import { ChartConfig } from '@/components/ui/chart';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, type Coordinator, type Students } from '@/types';
+import type { PageProps as InertiaPageProps } from '@inertiajs/core';
 import { Head, usePage } from '@inertiajs/react';
-
-// Chart data
-const chartData = [
-    { month: 'January', student: 186 },
-    { month: 'February', student: 305 },
-    { month: 'March', student: 237 },
-    { month: 'April', student: 73 },
-    { month: 'May', student: 209 },
-    { month: 'June', student: 214 },
-];
-
-// Chart configurations
-const chartConfig = {
-    student: {
-        label: 'Daily OJT Logs',
-        color: '#2563eb',
-    },
-} satisfies ChartConfig;
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -42,8 +22,7 @@ interface PaginatedResponse<T> {
     next_page_url: string | null;
 }
 
-interface PageProps {
-    [key: string]: any; // Add index signature
+interface PageProps extends InertiaPageProps {
     auth: {
         user: { name: string; role: string };
     };
@@ -77,32 +56,12 @@ export default function Dashboard() {
     const coordinatorData = coordinators?.data ?? [];
     const studentData = students?.data ?? [];
 
-    const user = auth.user;
-
-    const formatStatus = (status: string | undefined) => {
-        // Return a default value if status is undefined
-        if (!status) return 'Unknown';
-
-        return status.charAt(0).toUpperCase() + status.slice(1);
-    };
-
-    const activeStudentsCount = studentData.filter((student) => student.student?.status === 'active').length;
-    const inactiveStudentsCount = studentData.filter((student) => student.student?.status === 'inactive').length;
-    const pendingStudentsCount = studentData.filter((student) => student.student?.status === 'pending').length;
-
-    // Student status data for pie chart
-    const studentStatusData = [
-        { status: 'Active', count: activeStudentsCount, color: '#2563eb' }, //
-        { status: 'Inactive', count: inactiveStudentsCount, color: '#dc2626' },
-        { status: 'Pending', count: pendingStudentsCount, color: '#D08700' },
-    ];
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
             <div className="@container/main flex flex-1 flex-col gap-4 p-6">
                 <h1 className="mb-2 text-2xl font-semibold">
-                    Welcome, <span className="text-primary capitalize">{user.role}</span> !
+                    Welcome, <span className="text-primary capitalize">{auth.user.role}</span> !
                 </h1>
                 <div className="flex flex-col gap-4 md:gap-6">
                     <SectionCards
@@ -110,17 +69,6 @@ export default function Dashboard() {
                         studentCount={studentsCount}
                         departmentCount={departmentsCount}
                         programCount={programsCount}
-                    />
-                </div>
-
-                <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2">
-                    <DashboardChart data={chartData} config={chartConfig} />
-
-                    <StudentStatusChart
-                        title="Student Status Distribution"
-                        description="Active vs. Inactive Students"
-                        data={studentStatusData}
-                        config={chartConfig}
                     />
                 </div>
 

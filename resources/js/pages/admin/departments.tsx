@@ -1,7 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,10 +8,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import { IconChevronDown } from '@tabler/icons-react';
 import { Pencil, Plus, School, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { toast } from 'sonner';
+
+interface Department {
+    id: number;
+    name: string;
+    status: 'active' | 'inactive';
+}
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -21,33 +25,23 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Departments({ departments }: { departments: any[] }) {
+export default function Departments({ departments }: { departments: Department[] }) {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const { post, processing, errors, reset } = useForm({
-        name: '',
-        status: 'active',
-    });
-    // State for edit modal
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [editingProgram, setEditingProgram] = useState<any | null>(null);
+    const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        post(route('admin.departments.store'), {
-            onSuccess: () => {
-                reset('name', 'status');
-                setIsAddModalOpen(false);
-            },
-        });
-    };
-
-    const addForm = useForm({
+    const addForm = useForm<{
+        name: string;
+        status: 'active' | 'inactive';
+    }>({
         name: '',
         status: 'active',
     });
 
-    // Form for editing an existing program
-    const editForm = useForm({
+    const editForm = useForm<{
+        name: string;
+        status: 'active' | 'inactive';
+    }>({
         name: '',
         status: 'active',
     });
@@ -70,41 +64,41 @@ export default function Departments({ departments }: { departments: any[] }) {
     const handleEditSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (editingProgram) {
-            console.log('Updating Program:', editForm.data); // Check the data being sent
-            editForm.setData({
-                name: editForm.data.name,
-                status: editForm.data.status,
-            });
-
-            editForm.put(route('admin.departments.update', editingProgram.id), {
+        if (editingDepartment) {
+            editForm.put(route('admin.departments.update', editingDepartment.id), {
                 onSuccess: () => {
                     editForm.reset();
                     setIsEditModalOpen(false);
-                    setEditingProgram(null);
+                    setEditingDepartment(null);
+                    toast.success('Department has been updated.');
                 },
                 onError: (errors) => {
+                    toast.error('Failed to update department.');
                     console.error(errors);
                 },
             });
         }
     };
 
-    const handleEdit = (program: any) => {
-        setEditingProgram(program);
+    const handleEdit = (department: Department) => {
+        setEditingDepartment(department);
         editForm.setData({
-            name: program.name,
-            status: program.status,
+            name: department.name,
+            status: department.status,
         });
-
-        console.log('Edit Form Data:', editForm.data); // Log form data to verify it's being set
-
         setIsEditModalOpen(true);
     };
 
     const handleDelete = (id: number) => {
-        if (confirm('Are you sure you want to delete this program?')) {
-            addForm.delete(route('admin.departments.destroy', id));
+        if (confirm('Are you sure you want to delete this department?')) {
+            addForm.delete(route('admin.departments.destroy', id), {
+                onSuccess: () => {
+                    toast.success('Department has been deleted.');
+                },
+                onError: () => {
+                    toast.error('Failed to delete department.');
+                },
+            });
         }
     };
 
@@ -115,23 +109,6 @@ export default function Departments({ departments }: { departments: any[] }) {
                 <div className="flex items-center justify-between">
                     <h1>Departments</h1>
                     <div className="flex items-center gap-2">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm">
-                                    <School />
-                                    <span>Choose Department</span>
-                                    <IconChevronDown />
-                                </Button>
-                            </DropdownMenuTrigger>
-
-                            <DropdownMenuContent className="mr-8 w-56">
-                                <DropdownMenuGroup>
-                                    {departments.map((department) => (
-                                        <DropdownMenuItem key={department.id}>{department.name}</DropdownMenuItem>
-                                    ))}
-                                </DropdownMenuGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
                         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
                             <DialogTrigger asChild>
                                 <Button variant="outline" size="sm">
@@ -163,7 +140,7 @@ export default function Departments({ departments }: { departments: any[] }) {
                                         </div>
                                     </div>
                                     <DialogFooter>
-                                        <Button type="submit" className="dark:text-white" disabled={processing}>
+                                        <Button type="submit" className="dark:text-white" disabled={addForm.processing}>
                                             Add
                                             <Plus />
                                         </Button>
@@ -194,7 +171,10 @@ export default function Departments({ departments }: { departments: any[] }) {
                                             </>
                                             <Label className="text-right">Status</Label>
                                             <>
-                                                <Select value={editForm.data.status} onValueChange={(val) => editForm.setData('status', val)}>
+                                                <Select
+                                                    value={editForm.data.status}
+                                                    onValueChange={(val) => editForm.setData('status', val as 'active' | 'inactive')}
+                                                >
                                                     <SelectTrigger className="col-span-3 w-full capitalize">
                                                         <SelectValue placeholder="Select status" />
                                                     </SelectTrigger>
@@ -207,7 +187,7 @@ export default function Departments({ departments }: { departments: any[] }) {
                                         </div>
                                     </div>
                                     <DialogFooter>
-                                        <Button type="submit" className="dark:text-white" disabled={processing}>
+                                        <Button type="submit" className="dark:text-white" disabled={editForm.processing}>
                                             Save
                                             <Plus />
                                         </Button>

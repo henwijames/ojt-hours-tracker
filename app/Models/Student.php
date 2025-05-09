@@ -11,7 +11,8 @@ class Student extends Model
         'student_id',
         'department_id',
         'program_id',
-        'status'
+        'status',
+        'completed_hours'
     ];
 
     public function user()

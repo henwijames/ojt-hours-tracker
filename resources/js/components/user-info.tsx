@@ -1,9 +1,20 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/hooks/use-initials';
 import { type User } from '@/types';
+import type { PageProps as InertiaPageProps } from '@inertiajs/core';
+import { usePage } from '@inertiajs/react';
+
+interface PageProps extends InertiaPageProps {
+    auth: {
+        user: {
+            role: string;
+        };
+    };
+}
 
 export function UserInfo({ user, showEmail = false }: { user: User; showEmail?: boolean }) {
     const getInitials = useInitials();
+    const { auth } = usePage<PageProps>().props;
 
     return (
         <>
@@ -16,6 +27,7 @@ export function UserInfo({ user, showEmail = false }: { user: User; showEmail?: 
             <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
                 {showEmail && <span className="text-muted-foreground truncate text-xs">{user.email}</span>}
+                {showEmail && <span className="text-muted-foreground truncate text-xs capitalize">{auth.user.role}</span>}
             </div>
         </>
     );
