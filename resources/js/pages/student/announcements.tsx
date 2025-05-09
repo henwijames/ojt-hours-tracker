@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { formatDate } from '@/utils/date';
-import { Head, router } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { AlertCircle, Bell, Calendar, Clock } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -67,12 +67,6 @@ export default function Announcements({ announcements }: PageProps) {
                 return <AlertCircle className="mr-1 h-3.5 w-3.5" />;
         }
     }
-
-    const handlePagination = (url: string | null) => {
-        if (url) {
-            router.visit(url);
-        }
-    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -138,7 +132,6 @@ export default function Announcements({ announcements }: PageProps) {
                             nextPageUrl={announcements.next_page_url}
                             currentPage={announcements.current_page}
                             lastPage={announcements.last_page}
-                            handlePagination={handlePagination}
                         />
                     )}
                 </div>

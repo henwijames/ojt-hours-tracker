@@ -31,20 +31,26 @@ class TimeRecordController extends Controller
       return $this->redirectWithError('student.company.index', 'Your company submission must be approved first.');
     }
 
-    $timeRecords = TimeRecord::where('student_id', Auth::id())
+    $timeRecords = TimeRecord::with('student')
+      ->where('student_id', Auth::id())
       ->latest()
       ->paginate(10);
 
-    $timeIn = TimeRecord::where('student_id', Auth::id())
+    $timeRecordToday = TimeRecord::where('student_id', Auth::id())
       ->where('date', $today)
       ->first();
+
+    $timeIn = $timeRecordToday?->time_in;
+    $timeOut = $timeRecordToday?->time_out;
 
     return Inertia::render('student/time-records/index', [
       'timeRecords' => $timeRecords,
       'submission' => $submission,
       'required_hours' => $student->required_hours,
       'completed_hours' => (float) $student->completed_hours,
-      'time_in' => $timeIn
+      'time_in' => $timeIn,
+      'time_out' => $timeOut,
+      'timeRecordToday' => $timeRecordToday
     ]);
   }
 

@@ -32,17 +32,28 @@ interface PageProps<T = object> {
         submitted_at: string;
         status: string;
     };
+    student: {
+        id: number;
+        student_id: string;
+        name: string;
+        email: string;
+        department: string;
+        program: string;
+        status: string;
+        completed_hours: number;
+    };
 }
 
-export default function Dashboard({ auth, companySubmission }: PageProps) {
+export default function Dashboard({ auth, companySubmission, student }: PageProps) {
     const [progress, setProgress] = useState(0);
 
     const user = auth.user;
 
     const companyData = companySubmission;
+
     console.log(companyData);
 
-    const progressValue = (393 / 486) * 100;
+    const progressValue = (Math.floor(student.completed_hours) / 486) * 100;
 
     useEffect(() => {
         const timer = setTimeout(() => setProgress(formatNumber(progressValue)), 500);
@@ -65,7 +76,9 @@ export default function Dashboard({ auth, companySubmission }: PageProps) {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h2 className="text-primary text-xs dark:text-gray-50">OJT Hours</h2>
-                                    <p className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">393/486</p>
+                                    <p className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                                        {Math.floor(student.completed_hours)}/486
+                                    </p>
                                 </div>
                                 <Clock className="h-12 w-12" strokeWidth={1} />
                             </div>

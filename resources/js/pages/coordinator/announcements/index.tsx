@@ -8,12 +8,26 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/app-layout';
-import { Announcements as Announcement, BreadcrumbItem, PaginatedResponse } from '@/types';
+import type { Announcements } from '@/types';
+import { BreadcrumbItem } from '@/types';
 import { formatDate } from '@/utils/date';
 import { truncateText } from '@/utils/string';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import { Eye, Pencil } from 'lucide-react';
 import { FormEvent, FormEventHandler, useState } from 'react';
+
+interface PaginatedResponse<T> {
+    data: T[];
+    current_page: number;
+    last_page: number;
+    prev_page_url: string | null;
+    next_page_url: string | null;
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
+}
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -22,7 +36,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Announcements({ announcements }: PaginatedResponse<Announcement>) {
+export default function Announcements({ announcements }: { announcements: PaginatedResponse<Announcements['data'][0]> }) {
     const [isAddModal, setIsAddModal] = useState(false);
     const { data, setData, post, processing, errors } = useForm({
         title: '',
@@ -52,12 +66,6 @@ export default function Announcements({ announcements }: PaginatedResponse<Annou
                 console.error('Error:', errors);
             },
         });
-    };
-
-    const handlePagination = (url: string | null) => {
-        if (url) {
-            router.visit(url);
-        }
     };
 
     return (
@@ -131,7 +139,6 @@ export default function Announcements({ announcements }: PaginatedResponse<Annou
                     nextPageUrl={announcements.next_page_url}
                     currentPage={announcements.current_page}
                     lastPage={announcements.last_page}
-                    handlePagination={handlePagination}
                 />
 
                 <Dialog open={isAddModal} onOpenChange={setIsAddModal}>

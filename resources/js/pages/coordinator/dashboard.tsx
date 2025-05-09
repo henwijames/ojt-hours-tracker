@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import UserStatusBadge from '@/components/user-status-badge';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, type Coordinator, type Students } from '@/types';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 
 // Chart data
 const chartData = [
@@ -48,9 +48,13 @@ interface PaginatedResponse<T> {
 }
 
 interface PageProps {
-    [key: string]: any; // Add index signature
+    [key: string]: unknown;
     auth: {
         user: { name: string; role: string };
+    };
+    coordinator: {
+        department?: { name: string };
+        program?: { name: string };
     };
     coordinators: PaginatedResponse<Coordinator>;
     students: PaginatedResponse<Students>;
@@ -81,12 +85,6 @@ export default function Dashboard() {
         { status: 'Inactive', count: inactiveStudentsCount, color: '#dc2626' }, // Red color for inactive
         { status: 'Pending', count: pendingStudentsCount, color: '#D08700' }, // Yellow color for pennding
     ];
-
-    const handlePagination = (url: string | null) => {
-        if (url) {
-            router.visit(url);
-        }
-    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -160,7 +158,6 @@ export default function Dashboard() {
                     nextPageUrl={students?.next_page_url}
                     currentPage={students?.current_page}
                     lastPage={students?.last_page}
-                    handlePagination={handlePagination}
                 />
             </div>
         </AppLayout>

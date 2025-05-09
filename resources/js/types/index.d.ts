@@ -139,3 +139,12 @@ export interface TimeRecord {
     updated_at: string;
     student?: Student;
 }
+
+export interface PaginationComponentProps {
+    links: { label: string; url: string | null; active: boolean }[];
+    prevPageUrl: string | null;
+    nextPageUrl: string | null;
+    currentPage: number | null;
+    lastPage: number | null;
+    handlePagination: (url: string | null) => void;
+}

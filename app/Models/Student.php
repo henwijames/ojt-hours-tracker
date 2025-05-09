@@ -39,4 +39,9 @@ class Student extends Model
     {
         return $this->hasOne(CompanySubmission::class, 'student_id');
     }
+
+    public function timeRecords()
+    {
+        return $this->hasMany(TimeRecord::class, 'user_id');
+    }
 }

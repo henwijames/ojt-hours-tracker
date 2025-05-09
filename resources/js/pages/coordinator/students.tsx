@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import UserStatusBadge from '@/components/user-status-badge';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Coordinator, Students as Student } from '@/types';
-import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { Eye, Pencil } from 'lucide-react';
 import { useState } from 'react';
 
@@ -33,9 +33,12 @@ interface PaginatedResponse<T> {
 }
 
 interface PageProps {
-    [key: string]: any;
+    [key: string]: unknown;
     auth: {
         user: { name: string; role: string };
+    };
+    coordinator: {
+        program: { name: string };
     };
     coordinators: PaginatedResponse<Coordinator>;
     students: PaginatedResponse<Student>;
@@ -73,11 +76,6 @@ export default function Students() {
         });
     };
 
-    const handlePagination = (url: string | null) => {
-        if (url) {
-            router.visit(url);
-        }
-    };
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Students | Coordinator" />
@@ -154,7 +152,6 @@ export default function Students() {
                     nextPageUrl={students.next_page_url}
                     currentPage={students.current_page}
                     lastPage={students.last_page}
-                    handlePagination={handlePagination}
                 />
                 <Dialog open={editModal} onOpenChange={setEditModal}>
                     <DialogContent className="sm:max-w-[425px]">

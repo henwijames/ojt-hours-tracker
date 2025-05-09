@@ -1,14 +1,16 @@
+import PaginationComponent from '@/components/pagination';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, TimeRecord } from '@/types';
 import { formatNumber } from '@/utils/number';
 import { Head, useForm } from '@inertiajs/react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Loader2 } from 'lucide-react';
 import { FormEventHandler, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -26,17 +28,21 @@ interface PageProps {
         current_page: number;
         last_page: number;
         links: { label: string; url: string | null; active: boolean }[];
+        prev_page_url: string | null;
+        next_page_url: string | null;
     };
     required_hours: number;
     completed_hours: number;
-    time_in: TimeRecord;
+    time_in: string;
+    time_out: string | null;
+    timeRecordToday: string | null;
 }
 
 type TimeInForm = {
     image: File | null;
 };
 
-export default function TimeRecords({ timeRecords, required_hours, completed_hours, time_in }: PageProps) {
+export default function TimeRecords({ timeRecords, required_hours, completed_hours, time_in, time_out, timeRecordToday }: PageProps) {
     const { setData, post, processing, errors } = useForm<TimeInForm>({
         image: null,
     });
@@ -93,8 +99,12 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
 
     const timeInSubmit: FormEventHandler = (e) => {
         e.preventDefault();
+
         post(route('student.time-records.time-in'), {
             onSuccess: () => {
+                handleTimeInDialogClose();
+            },
+            onError: () => {
                 handleTimeInDialogClose();
             },
         });
@@ -102,12 +112,17 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
 
     const timeOutSubmit: FormEventHandler = (e) => {
         e.preventDefault();
+        setIsTimeOutOpen(false);
         post(route('student.time-records.time-out'), {
             onSuccess: () => {
                 handleTimeOutDialogClose();
             },
+            onError: () => {
+                handleTimeOutDialogClose();
+            },
         });
     };
+    console.log(timeRecordToday);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -138,25 +153,73 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
                             <CardHeader>
                                 <CardTitle className="text-center font-bold">Record Time Entry</CardTitle>
                             </CardHeader>
-                            <CardContent>
-                                <div className="flex flex-col gap-4">
-                                    <div className="flex flex-col gap-2">
-                                        <h1 className="text-center text-2xl font-bold">{format(currentTime, 'hh:mm:ss a')}</h1>
-                                        <p className="text-center">{time_in === null ? 'Not Clocked In' : 'Clocked In'}</p>
+                            <CardContent className="flex flex-grow flex-col gap-4">
+                                <div className="flex flex-col gap-2">
+                                    <h1 className="text-center text-2xl font-bold">{format(currentTime, 'hh:mm:ss a')}</h1>
+                                    <div className="mt-auto flex justify-between">
+                                        <p className="text-muted-foreground items-center">
+                                            {timeRecordToday ? `Clocked In at ${format(parseISO(time_in), 'hh:mm:ss a')}` : 'Not Clocked In'}
+                                        </p>
+                                        {time_in !== null && time_out === null ? (
+                                            <p className="text-muted-foreground items-center">Not Clocked Out Yet</p>
+                                        ) : time_out !== null ? (
+                                            <p className="text-muted-foreground items-center">
+                                                Clocked Out at {format(parseISO(time_out), 'hh:mm:ss a')}
+                                            </p>
+                                        ) : null}
                                     </div>
-                                    <div className="flex h-full items-end justify-between gap-2">
-                                        <Dialog open={isTimeInOpen} onOpenChange={setIsTimeInOpen}>
+                                </div>
+                                <div className="mt-auto flex items-center gap-2">
+                                    <Dialog open={isTimeInOpen} onOpenChange={setIsTimeInOpen}>
+                                        <DialogTrigger asChild>
+                                            <Button variant="default" className="flex-grow">
+                                                Clock In
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="sm:max-w-[425px]">
+                                            <DialogHeader>
+                                                <DialogTitle>Proof of Time In</DialogTitle>
+                                                <DialogDescription>Submit an image as proof of attendance.</DialogDescription>
+                                            </DialogHeader>
+                                            <form onSubmit={timeInSubmit}>
+                                                <div className="grid w-full max-w-sm items-center gap-1.5">
+                                                    <Label htmlFor="picture">Picture</Label>
+                                                    <Input
+                                                        id="picture"
+                                                        ref={fileRef}
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={handleFileChange}
+                                                        aria-label="Upload time in proof"
+                                                    />
+                                                    {errors.image && <p className="text-red-500">{errors.image}</p>}
+                                                </div>
+                                                <DialogFooter className="mt-2">
+                                                    <Button type="submit" disabled={processing}>
+                                                        Submit
+                                                        {processing && <Loader2 className="h-4 w-4 animate-spin" />}
+                                                    </Button>
+                                                </DialogFooter>
+                                            </form>
+                                        </DialogContent>
+                                    </Dialog>
+                                    {time_in === null ? (
+                                        <Button variant="outline" className="flex-grow" disabled>
+                                            Clock out
+                                        </Button>
+                                    ) : (
+                                        <Dialog open={isTimeOutOpen} onOpenChange={setIsTimeOutOpen}>
                                             <DialogTrigger asChild>
-                                                <Button variant="default" className="flex-grow">
-                                                    Clock In
+                                                <Button variant="outline" className="flex-grow">
+                                                    Clock out
                                                 </Button>
                                             </DialogTrigger>
                                             <DialogContent className="sm:max-w-[425px]">
                                                 <DialogHeader>
-                                                    <DialogTitle>Proof of Time In</DialogTitle>
+                                                    <DialogTitle>Proof of Time Out</DialogTitle>
                                                     <DialogDescription>Submit an image as proof of attendance.</DialogDescription>
                                                 </DialogHeader>
-                                                <form onSubmit={timeInSubmit}>
+                                                <form onSubmit={timeOutSubmit}>
                                                     <div className="grid w-full max-w-sm items-center gap-1.5">
                                                         <Label htmlFor="picture">Picture</Label>
                                                         <Input
@@ -165,7 +228,7 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
                                                             type="file"
                                                             accept="image/*"
                                                             onChange={handleFileChange}
-                                                            aria-label="Upload time in proof"
+                                                            aria-label="Upload time out proof"
                                                         />
                                                         {errors.image && <p className="text-red-500">{errors.image}</p>}
                                                     </div>
@@ -178,51 +241,41 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
                                                 </form>
                                             </DialogContent>
                                         </Dialog>
-                                        {time_in === null ? (
-                                            <Button variant="default" className="flex-grow" disabled>
-                                                Clock out
-                                            </Button>
-                                        ) : (
-                                            <Dialog open={isTimeOutOpen} onOpenChange={setIsTimeOutOpen}>
-                                                <DialogTrigger asChild>
-                                                    <Button variant="outline" className="flex-grow">
-                                                        Clock out
-                                                    </Button>
-                                                </DialogTrigger>
-                                                <DialogContent className="sm:max-w-[425px]">
-                                                    <DialogHeader>
-                                                        <DialogTitle>Proof of Time Out</DialogTitle>
-                                                        <DialogDescription>Submit an image as proof of attendance.</DialogDescription>
-                                                    </DialogHeader>
-                                                    <form onSubmit={timeOutSubmit}>
-                                                        <div className="grid w-full max-w-sm items-center gap-1.5">
-                                                            <Label htmlFor="picture">Picture</Label>
-                                                            <Input
-                                                                id="picture"
-                                                                ref={fileRef}
-                                                                type="file"
-                                                                accept="image/*"
-                                                                onChange={handleFileChange}
-                                                                aria-label="Upload time out proof"
-                                                            />
-                                                            {errors.image && <p className="text-red-500">{errors.image}</p>}
-                                                        </div>
-                                                        <DialogFooter className="mt-2">
-                                                            <Button type="submit" disabled={processing}>
-                                                                Submit
-                                                                {processing && <Loader2 className="h-4 w-4 animate-spin" />}
-                                                            </Button>
-                                                        </DialogFooter>
-                                                    </form>
-                                                </DialogContent>
-                                            </Dialog>
-                                        )}
-                                    </div>
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>
                     </div>
                 </div>
+                <div className="overflow-hidden rounded-lg border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Date</TableHead>
+                                <TableHead>Time In</TableHead>
+                                <TableHead>Time Out</TableHead>
+                                <TableHead>Rendered hours</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {timeRecords.data.map((timeRecord) => (
+                                <TableRow key={timeRecord.id}>
+                                    <TableCell>{format(parseISO(timeRecord.created_at), 'MMMM dd, yyyy hh:mm a')}</TableCell>
+                                    <TableCell>{timeRecord.time_in ? format(parseISO(timeRecord.time_in), 'hh:mm a') : '-'}</TableCell>
+                                    <TableCell>{timeRecord.time_out ? format(parseISO(timeRecord.time_out), 'hh:mm a') : '-'}</TableCell>
+                                    <TableCell>{timeRecord.student?.completed_hours}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+                <PaginationComponent
+                    links={timeRecords.links}
+                    prevPageUrl={timeRecords.prev_page_url}
+                    nextPageUrl={timeRecords.next_page_url}
+                    currentPage={timeRecords.current_page}
+                    lastPage={timeRecords.last_page}
+                />
             </div>
         </AppLayout>
     );

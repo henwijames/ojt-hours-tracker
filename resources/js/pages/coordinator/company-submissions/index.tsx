@@ -87,12 +87,6 @@ export default function CompanySubmissions({ companySubmissions }: PageProps) {
         }
     }
 
-    const handlePagination = (url: string | null) => {
-        if (url) {
-            router.visit(url);
-        }
-    };
-
     const handleApprove = (id: number) => {
         router.put(route('coordinator.company-submissions.approve', id));
     };
@@ -215,7 +209,6 @@ export default function CompanySubmissions({ companySubmissions }: PageProps) {
                             nextPageUrl={companySubmissions.next_page_url}
                             currentPage={companySubmissions.current_page}
                             lastPage={companySubmissions.last_page}
-                            handlePagination={handlePagination}
                         />
                     </div>
                 </div>

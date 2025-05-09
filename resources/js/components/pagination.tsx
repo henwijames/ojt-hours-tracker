@@ -1,4 +1,5 @@
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { router } from '@inertiajs/react';
 
 interface PaginationComponentProps {
     links: { label: string; url: string | null; active: boolean }[];
@@ -6,10 +7,14 @@ interface PaginationComponentProps {
     nextPageUrl: string | null;
     currentPage: number | null;
     lastPage: number | null;
-    handlePagination: (url: string | null) => void;
 }
 
-export default function PaginationComponent({ links, prevPageUrl, nextPageUrl, currentPage, lastPage, handlePagination }: PaginationComponentProps) {
+export default function PaginationComponent({ links, prevPageUrl, nextPageUrl, currentPage, lastPage }: PaginationComponentProps) {
+    const handlePagination = (url: string | null) => {
+        if (url) {
+            router.visit(url);
+        }
+    };
     return (
         <Pagination className="flex justify-between">
             <div className="text-sm text-gray-500">
