@@ -138,6 +138,7 @@ export interface TimeRecord {
     created_at: string;
     updated_at: string;
     student?: Student;
+    rendered_hours: number;
 }
 
 export interface PaginationComponentProps {

@@ -42,6 +42,7 @@ class TimeRecordController extends Controller
 
     $timeIn = $timeRecordToday?->time_in;
     $timeOut = $timeRecordToday?->time_out;
+    $renderedHours = $this->calculateRenderedHours($timeRecordToday);
 
     return Inertia::render('student/time-records/index', [
       'timeRecords' => $timeRecords,
@@ -50,7 +51,8 @@ class TimeRecordController extends Controller
       'completed_hours' => (float) $student->completed_hours,
       'time_in' => $timeIn,
       'time_out' => $timeOut,
-      'timeRecordToday' => $timeRecordToday
+      'timeRecordToday' => $timeRecordToday,
+      'rendered_hours' => $renderedHours
     ]);
   }
 
@@ -178,9 +180,13 @@ class TimeRecordController extends Controller
 
   private function updateTimeRecord(TimeRecord $record, string $imagePath): void
   {
+    $record->time_out = now();
+    $renderedHours = $this->calculateRenderedHours($record);
+
     $record->update([
-      'time_out' => now(),
-      'time_out_image' => $imagePath
+      'time_out' => $record->time_out,
+      'time_out_image' => $imagePath,
+      'rendered_hours' => $renderedHours
     ]);
   }
 
@@ -193,6 +199,18 @@ class TimeRecordController extends Controller
 
     $student->completed_hours = ($student->completed_hours ?? 0) + $hoursWorked;
     $student->save();
+  }
+
+  private function calculateRenderedHours(?TimeRecord $record): float
+  {
+    if (!$record || !$record->time_in || !$record->time_out) {
+      return 0;
+    }
+
+    $timeIn = Carbon::parse($record->time_in);
+    $timeOut = Carbon::parse($record->time_out);
+
+    return round(abs($timeOut->floatDiffInHours($timeIn)), 2);
   }
 
   private function redirectWithSuccess(string $message): RedirectResponse

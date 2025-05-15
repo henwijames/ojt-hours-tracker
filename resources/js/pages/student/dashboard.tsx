@@ -5,6 +5,7 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { formatNumber } from '@/utils/number';
 import { Head, Link } from '@inertiajs/react';
+import { format, parseISO } from 'date-fns';
 import { Building, Clock, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -42,9 +43,22 @@ interface PageProps<T = object> {
         status: string;
         completed_hours: number;
     };
+    announcements: {
+        id: number;
+        title: string;
+        body: string;
+        created_at: string;
+    }[];
+    timeRecords: {
+        id: number;
+        time_in: string;
+        time_out: string;
+        created_at: string;
+    }[];
+    totalTimeRecords: number;
 }
 
-export default function Dashboard({ auth, companySubmission, student }: PageProps) {
+export default function Dashboard({ auth, companySubmission, student, announcements, timeRecords, totalTimeRecords }: PageProps) {
     const [progress, setProgress] = useState(0);
 
     const user = auth.user;
@@ -55,8 +69,10 @@ export default function Dashboard({ auth, companySubmission, student }: PageProp
 
     const progressValue = (Math.floor(student.completed_hours) / 486) * 100;
 
+    const number = (n: number) => formatNumber(n);
+
     useEffect(() => {
-        const timer = setTimeout(() => setProgress(formatNumber(progressValue)), 500);
+        const timer = setTimeout(() => setProgress(number(progressValue)), 500);
         return () => clearTimeout(timer);
     }, [progressValue]);
 
@@ -115,32 +131,36 @@ export default function Dashboard({ auth, companySubmission, student }: PageProp
                         <CardHeader>
                             <CardTitle>Latest Announcements</CardTitle>
                         </CardHeader>
-                        <CardContent className="flex flex-col gap-2">
-                            <div className="flex w-full items-center justify-between">
-                                <h2 className="font-bold">2ND OJT Meeting</h2>
-                                <p className="text-xs">02/05/2025</p>
-                            </div>
-                            <div className="flex w-full items-center justify-between">
-                                <h2 className="font-bold">2ND OJT Meeting</h2>
-                                <p className="text-xs">02/05/2025</p>
-                            </div>
-                        </CardContent>
+                        {announcements.map((announcement) => (
+                            <CardContent className="flex flex-col gap-2" key={announcement.id}>
+                                <div className="flex w-full items-center justify-between">
+                                    <h2 className="font-bold">{announcement.title}</h2>
+                                    <p className="text-xs">{format(parseISO(announcement.created_at), 'MM/dd/yyyy')}</p>
+                                </div>
+                            </CardContent>
+                        ))}
                         <CardFooter className="h-full items-end">
-                            <Button variant="outline" className="w-full">
-                                View Announcements
-                            </Button>
+                            <Link href={route('student.announcements.index')} className="w-full cursor-pointer">
+                                <Button variant="outline" className="w-full">
+                                    View Announcements
+                                </Button>
+                            </Link>
                         </CardFooter>
                     </Card>
                     <Card>
                         <CardHeader>
                             <CardTitle>My Logs</CardTitle>
                         </CardHeader>
+
                         <CardContent className="flex flex-col">
+                            {timeRecords.map((timeRecord) => (
+                                <div className="flex items-center gap-2" key={timeRecord.id}>
+                                    <h2 className="font-bold">Last Log: {format(parseISO(timeRecord.time_in), 'MM/dd/yyyy')}</h2>
+                                </div>
+                            ))}
+
                             <div className="flex items-center gap-2">
-                                <h2 className="font-bold">Last Log: 02/05/2025</h2>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <h2 className="font-bold">Total Logs: 50</h2>
+                                <h2 className="font-bold">Total Logs: {totalTimeRecords}</h2>
                             </div>
                         </CardContent>
                         <CardFooter className="h-full items-end">

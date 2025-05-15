@@ -13,7 +13,8 @@ class TimeRecord extends Model
     'date',
     'time_in_image',
     'time_out_image',
-    'remarks'
+    'remarks',
+    'rendered_hours'
   ];
 
   protected $casts = [

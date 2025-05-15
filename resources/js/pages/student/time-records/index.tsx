@@ -263,7 +263,7 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
                                     <TableCell>{format(parseISO(timeRecord.created_at), 'MMMM dd, yyyy hh:mm a')}</TableCell>
                                     <TableCell>{timeRecord.time_in ? format(parseISO(timeRecord.time_in), 'hh:mm a') : '-'}</TableCell>
                                     <TableCell>{timeRecord.time_out ? format(parseISO(timeRecord.time_out), 'hh:mm a') : '-'}</TableCell>
-                                    <TableCell>{timeRecord.student?.completed_hours}</TableCell>
+                                    <TableCell>{timeRecord.rendered_hours}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

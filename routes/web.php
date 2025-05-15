@@ -51,64 +51,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('users', UserController::class)->only(['index', 'update']);
 });
 
-/*
-|--------------------------------------------------------------------------
-| Coordinator Routes
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth', 'role:coordinator'])->prefix('coordinator')->name('coordinator.')->group(function () {
-    Route::get('/dashboard', [CoordinatorDashboardController::class, 'index'])->name('dashboard');
-
-    Route::resource('students', StudentController::class)->only(['index', 'update']);
-    Route::resource('announcements', AnnouncementController::class)->only(['index', 'store', 'update', 'destroy']);
-
-    Route::controller(CompanySubmissionController::class)
-        ->prefix('company-submissions')
-        ->name('company-submissions.')
-        ->group(function () {
-            Route::get('/', 'index')->name('index');
-            Route::put('/{companySubmission}/approve', 'approve')->name('approve');
-            Route::put('/{companySubmission}/reject', 'reject')->name('reject');
-        });
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| Student Routes
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
-    Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
-
-    Route::controller(CompanySubmissionController::class)->prefix('company')->name('company.')->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::post('/', 'store')->name('store');
-        Route::get('/edit', 'edit')->name('edit');
-        Route::put('/{companySubmission}', 'update')->name('update');
-    });
-
-    Route::controller(StudentAnnouncementController::class)->prefix('announcements')->name('announcements.')->group(function () {
-        Route::get('/', 'index')->name('index');
-    });
-
-    Route::get('/reminders', function () {
-        $reminders = Announcements::where('program_id', Auth::user()->student->program_id)
-            ->where('type', 'reminder')
-            ->with(['department', 'program'])
-            ->latest()
-            ->paginate(5);
-        return Inertia::render('student/reminders', [
-            'reminders' => $reminders,
-        ]);
-    })->name('reminders');
-
-    Route::controller(TimeRecordController::class)->prefix('time-records')->name('time-records.')->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::post('/time-in', 'timeIn')->name('time-in');
-        Route::post('/time-out', 'timeOut')->name('time-out');
-    });
-});
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
+require __DIR__ . '/student.php';
+require __DIR__ . '/coordinator.php';
