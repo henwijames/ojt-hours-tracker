@@ -29,11 +29,36 @@ type UserFormData = {
     program_id?: string;
 };
 
+interface Student {
+    id: number;
+    name: string;
+    email: string;
+    student?: {
+        student_id: string;
+        status: string;
+        department?: { name: string };
+        program?: { name: string };
+    };
+}
+
+interface Coordinator {
+    id: number;
+    name: string;
+    email: string;
+    coordinator?: {
+        status: string;
+        department_id: string;
+        program_id: string;
+        department?: { name: string };
+        program?: { name: string };
+    };
+}
+
 type EditSheetProps = {
     type: 'student' | 'coordinator';
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    selectedUser: any;
+    selectedUser: Student | Coordinator | null;
     formData: UserFormData;
     setFormData: (key: string, value: string) => void;
     processing: boolean;
@@ -216,11 +241,19 @@ const ActionButtons = ({ onEdit, onDelete }: { onEdit: () => void; onDelete?: ()
     </div>
 );
 
-export default function Users({ coordinators, students, departments }: { coordinators: any[]; students: any[]; departments: Department[] }) {
+export default function Users({
+    coordinators,
+    students,
+    departments,
+}: {
+    coordinators: Coordinator[];
+    students: Student[];
+    departments: Department[];
+}) {
     const [open, setOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<'coordinator' | 'student'>('coordinator');
-    const [selectedStudent, setSelectedStudent] = useState<any>(null);
-    const [selectedCoordinator, setSelectedCoordinator] = useState<any>(null);
+    const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+    const [selectedCoordinator, setSelectedCoordinator] = useState<Coordinator | null>(null);
     const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
 
     const {
@@ -229,7 +262,6 @@ export default function Users({ coordinators, students, departments }: { coordin
         put: putStudent,
         processing: processingStudent,
         reset: resetStudent,
-        errors: studentErrors,
     } = useForm<UserFormData>({
         name: '',
         email: '',
@@ -242,7 +274,6 @@ export default function Users({ coordinators, students, departments }: { coordin
         put: putCoordinator,
         processing: processingCoordinator,
         reset: resetCoordinator,
-        errors: coordinatorErrors,
     } = useForm<UserFormData>({
         name: '',
         email: '',
@@ -253,9 +284,12 @@ export default function Users({ coordinators, students, departments }: { coordin
 
     // Find and update selectedDepartment when coordinator department_id changes
     useEffect(() => {
-        if (coordinatorData.department_id) {
-            const dept = departments.find((d) => d.id.toString() === coordinatorData.department_id);
-            setSelectedDepartment(dept || null);
+        const deptId = coordinatorData.department_id;
+        if (deptId && departments.length > 0) {
+            const dept = departments.find((d) => d.id.toString() === deptId);
+            setSelectedDepartment(dept ?? null);
+        } else {
+            setSelectedDepartment(null);
         }
     }, [coordinatorData.department_id, departments]);
 
@@ -269,31 +303,33 @@ export default function Users({ coordinators, students, departments }: { coordin
         }
     }, [open, resetStudent, resetCoordinator]);
 
-    const handleEditStudent = (student: any) => {
+    const handleEditStudent = (student: Student) => {
+        if (!student) return;
         setSelectedStudent(student);
         setStudentData({
-            name: student.name || '',
-            email: student.email || '',
-            status: student.student?.status || '',
+            name: student.name,
+            email: student.email,
+            status: student.student?.status ?? '',
         });
         setActiveTab('student');
         setOpen(true);
     };
 
-    const handleEditCoordinator = (coordinator: any) => {
+    const handleEditCoordinator = (coordinator: Coordinator) => {
+        if (!coordinator || !coordinator.coordinator) return;
         setSelectedCoordinator(coordinator);
         setCoordinatorData({
-            name: coordinator.name || '',
-            email: coordinator.email || '',
-            status: coordinator.coordinator?.status || '',
-            department_id: coordinator.coordinator?.department_id?.toString() || '',
-            program_id: coordinator.coordinator?.program_id?.toString() || '',
+            name: coordinator.name,
+            email: coordinator.email,
+            status: coordinator.coordinator.status ?? '',
+            department_id: coordinator.coordinator.department_id.toString(),
+            program_id: coordinator.coordinator.program_id.toString(),
         });
 
         // Set selected department for program dropdown
         if (coordinator.coordinator?.department_id) {
-            const dept = departments.find((d) => d.id.toString() === coordinator.coordinator.department_id.toString());
-            setSelectedDepartment(dept || null);
+            const dept = departments.find((d) => d.id.toString() === coordinator.coordinator?.department_id.toString());
+            setSelectedDepartment(dept ?? null);
         }
 
         setActiveTab('coordinator');
@@ -343,7 +379,19 @@ export default function Users({ coordinators, students, departments }: { coordin
                 onSubmit: handleCoordinatorSaveChanges,
             };
         }
-    }, [activeTab, selectedStudent, selectedCoordinator, studentData, coordinatorData, processingStudent, processingCoordinator]);
+    }, [
+        activeTab,
+        selectedStudent,
+        selectedCoordinator,
+        studentData,
+        coordinatorData,
+        processingStudent,
+        processingCoordinator,
+        handleStudentSaveChanges,
+        handleCoordinatorSaveChanges,
+        setStudentData,
+        setCoordinatorData,
+    ]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -376,10 +424,10 @@ export default function Users({ coordinators, students, departments }: { coordin
                                                 <TableRow key={coordinator.id}>
                                                     <TableCell>{coordinator.name}</TableCell>
                                                     <TableCell>{coordinator.email}</TableCell>
-                                                    <TableCell>{coordinator.coordinator?.department?.name}</TableCell>
-                                                    <TableCell>{coordinator.coordinator?.program?.name}</TableCell>
+                                                    <TableCell>{coordinator.coordinator?.department?.name ?? '-'}</TableCell>
+                                                    <TableCell>{coordinator.coordinator?.program?.name ?? '-'}</TableCell>
                                                     <TableCell>
-                                                        <UserStatusBadge status={coordinator.coordinator?.status} />
+                                                        <UserStatusBadge status={coordinator.coordinator?.status ?? 'pending'} />
                                                     </TableCell>
                                                     <TableCell className="text-right">
                                                         <ActionButtons
@@ -422,13 +470,13 @@ export default function Users({ coordinators, students, departments }: { coordin
                                         {students.length > 0 ? (
                                             students.map((student) => (
                                                 <TableRow key={student.id}>
-                                                    <TableCell className="w-[100px]">{student.student?.student_id}</TableCell>
+                                                    <TableCell className="w-[100px]">{student.student?.student_id ?? '-'}</TableCell>
                                                     <TableCell>{student.name}</TableCell>
                                                     <TableCell>{student.email}</TableCell>
-                                                    <TableCell>{student.student?.department?.name}</TableCell>
-                                                    <TableCell>{student.student?.program?.name}</TableCell>
+                                                    <TableCell>{student.student?.department?.name ?? '-'}</TableCell>
+                                                    <TableCell>{student.student?.program?.name ?? '-'}</TableCell>
                                                     <TableCell>
-                                                        <UserStatusBadge status={student.student?.status} />
+                                                        <UserStatusBadge status={student.student?.status ?? 'pending'} />
                                                     </TableCell>
                                                     <TableCell className="text-right">
                                                         <ActionButtons

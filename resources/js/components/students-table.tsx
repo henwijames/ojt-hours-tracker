@@ -1,9 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { type Students } from '@/types';
-import { Pencil, Trash } from 'lucide-react';
-import { Button } from './ui/button';
 
 interface PaginatedResponse<T> {
     data: T[];
@@ -32,33 +29,6 @@ const UserStatusBadge = ({ status }: { status: string }) => {
         </Badge>
     );
 };
-
-// Action buttons component
-const ActionButtons = ({ onEdit, onDelete }: { onEdit: () => void; onDelete?: () => void }) => (
-    <div className="flex items-center gap-2">
-        <Tooltip>
-            <TooltipTrigger asChild>
-                <Button size="sm" variant="outline" onClick={onEdit}>
-                    <Pencil className="h-4 w-4" />
-                </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-                <p className="text-white">Edit</p>
-            </TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-            <TooltipTrigger asChild>
-                <Button size="sm" variant="destructive" onClick={onDelete}>
-                    <Trash className="h-4 w-4" />
-                </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-                <p className="text-white">Delete</p>
-            </TooltipContent>
-        </Tooltip>
-    </div>
-);
 
 export function StudentTable({ students }: StudentTableProps) {
     const studentData = students?.data ?? [];
