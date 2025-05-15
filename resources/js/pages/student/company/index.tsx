@@ -72,37 +72,38 @@ export default function Company({ companySubmission }: CompanySubmissionProps) {
             <Head title="Company | Student" />
             <div className="from-background to-muted/20 @container/main flex flex-1 flex-col gap-6 bg-gradient-to-br p-6">
                 {isDialogOpen && <CompanySubmissionForm isDialogOpen={isDialogOpen} />}
-                <Card className="mx-auto w-full max-w-3xl shadow-lg transition-all duration-300 hover:shadow-xl">
-                    <CardHeader className="pb-4">
-                        <div className="flex items-start justify-between">
-                            <div className="space-y-1">
-                                <CardTitle className="text-3xl font-bold tracking-tight">{companyData.company_name}</CardTitle>
-                                <p className="text-muted-foreground text-sm">Company Information</p>
+                <Card className="w-full shadow-lg transition-all duration-300 hover:shadow-xl">
+                    <CardHeader>
+                        <div className="flex flex-col items-start justify-between">
+                            <div className="flex w-full items-center justify-between">
+                                <CardTitle className="text-2xl font-bold tracking-tight">{companyData.company_name}</CardTitle>
+                                <div className="flex items-center gap-3">
+                                    <Badge
+                                        variant={statusBadge.variant}
+                                        className="ml-2 flex items-center px-3 py-1.5 text-xs font-medium capitalize transition-colors duration-200"
+                                    >
+                                        {statusBadge.icon}
+                                        {companyData.status}
+                                    </Badge>
+                                    {companyData.status === 'rejected' ||
+                                        (companyData.status === 'pending' && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="flex items-center gap-2"
+                                                onClick={() => router.visit(route('student.company.edit'))}
+                                            >
+                                                <Pencil className="h-4 w-4" />
+                                                Edit Submission
+                                            </Button>
+                                        ))}
+                                </div>
                             </div>
-                            <div className="flex items-center gap-3">
-                                <Badge
-                                    variant={statusBadge.variant}
-                                    className="ml-2 flex items-center px-3 py-1.5 text-xs font-medium capitalize transition-colors duration-200"
-                                >
-                                    {statusBadge.icon}
-                                    {companyData.status}
-                                </Badge>
-                                {companyData.status === 'rejected' ||
-                                    (companyData.status === 'pending' && (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="flex items-center gap-2"
-                                            onClick={() => router.visit(route('student.company.edit'))}
-                                        >
-                                            <Pencil className="h-4 w-4" />
-                                            Edit Submission
-                                        </Button>
-                                    ))}
-                            </div>
+
+                            <p className="text-muted-foreground text-sm">Company Information</p>
                         </div>
                     </CardHeader>
-                    <CardContent className="space-y-8 pt-4">
+                    <CardContent className="space-y-8">
                         <div className="space-y-6">
                             <div className="group flex items-start">
                                 <MapPin className="text-muted-foreground group-hover:text-primary mt-0.5 mr-3 h-5 w-5 flex-shrink-0 transition-colors duration-200" />

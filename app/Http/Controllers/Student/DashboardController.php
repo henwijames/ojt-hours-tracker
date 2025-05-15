@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Announcements;
 use App\Models\CompanySubmission;
+use App\Models\Program;
 use App\Models\Student;
 use App\Models\TimeRecord;
 use Illuminate\Http\Request;
@@ -18,12 +19,12 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $submission = CompanySubmission::where('student_id', Auth::user()->id)->first();
         $student = Student::where('user_id', Auth::user()->id)->first();
+        $submission = CompanySubmission::where('student_id', Auth::user()->id)->first();
         $announcements = Announcements::where('program_id', Auth::user()->student->program_id)->latest()->limit(2)->get();
         $timeRecords = TimeRecord::where('student_id', Auth::user()->id)->latest()->limit(1)->get();
         $totalTimeRecords = TimeRecord::where('student_id', Auth::user()->id)->count();
-
+        $requiredHours = $student->program->required_hours;
 
         return Inertia::render('student/dashboard', [
             'companySubmission' => $submission,
@@ -31,6 +32,7 @@ class DashboardController extends Controller
             'announcements' => $announcements,
             'timeRecords' => $timeRecords,
             'totalTimeRecords' => $totalTimeRecords,
+            'requiredHours' => $requiredHours,
         ]);
     }
 

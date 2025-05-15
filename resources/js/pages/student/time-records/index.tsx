@@ -137,14 +137,12 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
                             <CardContent>
                                 <div className="flex flex-col gap-4">
                                     <div className="flex flex-col gap-2">
-                                        <p className="text-sm font-medium">Remaining Hours: {formatNumber(hours - timeRecords.data.length)}</p>
+                                        <p className="text-sm font-medium">Remaining Hours: {formatNumber(hours - completed_hours)}</p>
                                         <Progress value={progress} />
                                         <div className="flex justify-between">
                                             <p className="text-sm font-medium">{formatNumber(progress)}% completed</p>
                                             <p className="text-sm font-medium">{formatNumber(hours)} hours required</p>
                                         </div>
-                                        <Label htmlFor="hours">Total Required Hours</Label>
-                                        <Input id="hours" type="number" value={`${Number(hours)}`} placeholder="Enter hours" readOnly />
                                     </div>
                                 </div>
                             </CardContent>
@@ -172,7 +170,7 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
                                 <div className="mt-auto flex items-center gap-2">
                                     <Dialog open={isTimeInOpen} onOpenChange={setIsTimeInOpen}>
                                         <DialogTrigger asChild>
-                                            <Button variant="default" className="flex-grow">
+                                            <Button variant="default" className="flex-grow" disabled={time_in !== null}>
                                                 Clock In
                                             </Button>
                                         </DialogTrigger>
@@ -210,7 +208,7 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
                                     ) : (
                                         <Dialog open={isTimeOutOpen} onOpenChange={setIsTimeOutOpen}>
                                             <DialogTrigger asChild>
-                                                <Button variant="outline" className="flex-grow">
+                                                <Button variant="outline" className="flex-grow" disabled={time_out !== null}>
                                                     Clock out
                                                 </Button>
                                             </DialogTrigger>

@@ -56,9 +56,10 @@ interface PageProps<T = object> {
         created_at: string;
     }[];
     totalTimeRecords: number;
+    requiredHours: number;
 }
 
-export default function Dashboard({ auth, companySubmission, student, announcements, timeRecords, totalTimeRecords }: PageProps) {
+export default function Dashboard({ auth, companySubmission, student, announcements, timeRecords, totalTimeRecords, requiredHours }: PageProps) {
     const [progress, setProgress] = useState(0);
 
     const user = auth.user;
@@ -93,7 +94,7 @@ export default function Dashboard({ auth, companySubmission, student, announceme
                                 <div>
                                     <h2 className="text-primary text-xs dark:text-gray-50">OJT Hours</h2>
                                     <p className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                                        {Math.floor(student.completed_hours)}/486
+                                        {Math.floor(student.completed_hours)}/{requiredHours}
                                     </p>
                                 </div>
                                 <Clock className="h-12 w-12" strokeWidth={1} />

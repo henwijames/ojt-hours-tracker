@@ -47,7 +47,7 @@ class TimeRecordController extends Controller
     return Inertia::render('student/time-records/index', [
       'timeRecords' => $timeRecords,
       'submission' => $submission,
-      'required_hours' => $student->required_hours,
+      'required_hours' => $student->program->required_hours,
       'completed_hours' => (float) $student->completed_hours,
       'time_in' => $timeIn,
       'time_out' => $timeOut,
@@ -65,7 +65,7 @@ class TimeRecordController extends Controller
       $existingRecord = $this->getTodayTimeRecord($today);
       if ($existingRecord && $existingRecord->time_in) {
         throw ValidationException::withMessages([
-          'time_in' => 'You have already timed in today.'
+          'time_in' => 'You have already clocked in today.'
         ]);
       }
 
@@ -153,13 +153,13 @@ class TimeRecordController extends Controller
   {
     if (!$record || !$record->time_in) {
       throw ValidationException::withMessages([
-        'time_out' => 'You must time in first.'
+        'time_out' => 'You must clock in first.'
       ]);
     }
 
     if ($record->time_out) {
       throw ValidationException::withMessages([
-        'time_out' => 'You have already timed out today.'
+        'time_out' => 'You have already clocked out today.'
       ]);
     }
   }
