@@ -21,6 +21,13 @@ class TimeRecord extends Model
     'time_in' => 'datetime',
     'time_out' => 'datetime',
     'date' => 'date',
+    'rendered_hours' => 'float'
+  ];
+
+  protected $dates = [
+    'time_in',
+    'time_out',
+    'date'
   ];
 
   public function student()

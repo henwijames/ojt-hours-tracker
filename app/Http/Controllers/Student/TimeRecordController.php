@@ -133,7 +133,8 @@ class TimeRecordController extends Controller
 
   private function getTodayTimeRecord(string $date)
   {
-    return TimeRecord::where('student_id', Auth::id())
+    return TimeRecord::select('id', 'student_id', 'time_in', 'time_out', 'date')
+      ->where('student_id', Auth::id())
       ->where('date', $date)
       ->first();
   }
@@ -151,13 +152,13 @@ class TimeRecordController extends Controller
 
   private function validateTimeOut(?TimeRecord $record): void
   {
-    if (!$record || !$record->time_in) {
+    if (!$record || !$record->getAttribute('time_in')) {
       throw ValidationException::withMessages([
         'time_out' => 'You must clock in first.'
       ]);
     }
 
-    if ($record->time_out) {
+    if ($record->getAttribute('time_out')) {
       throw ValidationException::withMessages([
         'time_out' => 'You have already clocked out today.'
       ]);

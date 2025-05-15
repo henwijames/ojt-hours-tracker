@@ -12,7 +12,7 @@ class ProfileUpdateRequest extends FormRequest
 {
     public function user($guard = null)
     {
-        return Auth::user($guard);
+        return Auth::user();
     }
 
     /**
