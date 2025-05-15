@@ -41,4 +41,24 @@ class StudentController extends Controller
             'message' => 'Student status updated successfully.',
         ]);
     }
+
+    public function updateRequiredHours(Request $request)
+    {
+        $request->validate([
+            'required_hours' => 'required|numeric|min:1',
+        ]);
+
+        $coordinator = Auth::user()->coordinator;
+        $program = $coordinator->program;
+
+        $program->update([
+            'required_hours' => $request->required_hours
+        ]);
+
+        return redirect()->back()->with([
+            'toast' => true,
+            'type' => 'success',
+            'message' => 'Required hours updated successfully.',
+        ]);
+    }
 }

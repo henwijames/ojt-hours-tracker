@@ -1,6 +1,7 @@
 import PaginationComponent from '@/components/pagination';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -9,7 +10,7 @@ import UserStatusBadge from '@/components/user-status-badge';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Coordinator, Students as Student } from '@/types';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { Eye, Pencil } from 'lucide-react';
+import { Eye, Pencil, Plus } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -47,12 +48,17 @@ interface PageProps {
 export default function Students() {
     const { students, coordinator } = usePage<PageProps>().props;
     const [editModal, setEditModal] = useState(false);
+    const [requiredHoursModal, setRequiredHoursModal] = useState(false);
 
     const studentData = students.data ?? [];
 
     const editStudent = useForm({
         id: '',
         status: '',
+    });
+
+    const requiredHoursForm = useForm({
+        required_hours: '',
     });
 
     const handleEdit = (student: Student) => {
@@ -76,11 +82,58 @@ export default function Students() {
         });
     };
 
+    const handleAddRequiredHours = (e: React.FormEvent) => {
+        e.preventDefault();
+        requiredHoursForm.post(route('coordinator.students.required-hours'), {
+            onSuccess: () => {
+                setRequiredHoursModal(false);
+                requiredHoursForm.reset();
+            },
+        });
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Students | Coordinator" />
             <div className="flex flex-col gap-4 p-4">
-                <h1 className="font-bold">{coordinator.program.name}</h1>
+                <div className="flex justify-between">
+                    <h1 className="font-bold">{coordinator.program.name}</h1>
+                    <Dialog open={requiredHoursModal} onOpenChange={setRequiredHoursModal}>
+                        <DialogTrigger asChild>
+                            <Button size="sm" variant="outline">
+                                <Plus className="h-4 w-4" />
+                                Add Required Hours
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Add Required Hours</DialogTitle>
+                                <DialogDescription>Add the required hours for the program.</DialogDescription>
+                            </DialogHeader>
+                            <form onSubmit={handleAddRequiredHours}>
+                                <div className="grid gap-4 py-4">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="required_hours">Required Hours</Label>
+                                        <Input
+                                            type="number"
+                                            id="required_hours"
+                                            value={requiredHoursForm.data.required_hours}
+                                            onChange={(e) => requiredHoursForm.setData('required_hours', e.target.value)}
+                                        />
+                                        {requiredHoursForm.errors.required_hours && (
+                                            <p className="text-sm text-red-500">{requiredHoursForm.errors.required_hours}</p>
+                                        )}
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button type="submit" className="text-white" disabled={requiredHoursForm.processing}>
+                                        {requiredHoursForm.processing ? 'Saving...' : 'Save Changes'}
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+                        </DialogContent>
+                    </Dialog>
+                </div>
                 <p className="text-muted-foreground -mt-4 text-sm">Manage your students here.</p>
 
                 <div className="overflow-hidden rounded-lg border">
