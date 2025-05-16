@@ -98,8 +98,8 @@ export default function Dashboard() {
                                                 <TableCell>{coordinator.id}</TableCell>
                                                 <TableCell>{coordinator.name}</TableCell>
                                                 <TableCell>{coordinator.email}</TableCell>
-                                                <TableCell>{coordinator.coordinator?.department.name}</TableCell>
-                                                <TableCell>{coordinator.coordinator?.program.name}</TableCell>
+                                                <TableCell>{coordinator.coordinator?.department?.name ?? '-'}</TableCell>
+                                                <TableCell>{coordinator.coordinator?.program?.name ?? '-'}</TableCell>
                                                 <TableCell>
                                                     <UserStatusBadge status={coordinator.coordinator?.status ?? 'unknown'} />
                                                 </TableCell>
