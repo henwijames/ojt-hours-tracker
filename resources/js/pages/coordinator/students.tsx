@@ -9,9 +9,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import UserStatusBadge from '@/components/user-status-badge';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Coordinator, Students as Student } from '@/types';
-import { Head, useForm, usePage } from '@inertiajs/react';
-import { Eye, Pencil, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import debounce from 'lodash.debounce';
+import { BookOpen, Eye, Logs, Pencil, Plus, Search } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -39,18 +40,33 @@ interface PageProps {
         user: { name: string; role: string };
     };
     coordinator: {
-        program: { name: string };
+        program: { name: string; required_hours?: number };
     };
     coordinators: PaginatedResponse<Coordinator>;
     students: PaginatedResponse<Student>;
+    filters: {
+        search?: string;
+    };
 }
 
 export default function Students() {
-    const { students, coordinator } = usePage<PageProps>().props;
+    const { students, coordinator, filters } = usePage<PageProps>().props;
     const [editModal, setEditModal] = useState(false);
     const [requiredHoursModal, setRequiredHoursModal] = useState(false);
+    const [search, setSearch] = useState((filters?.search as string) ?? '');
 
     const studentData = students.data ?? [];
+
+    const debouncedSearch = useCallback((query: string) => {
+        debounce((value: string) => {
+            router.get(route('coordinator.students.index'), { search: value }, { preserveState: true, preserveScroll: true });
+        }, 300)(query);
+    }, []);
+
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearch(e.target.value);
+        debouncedSearch(e.target.value);
+    };
 
     const editStudent = useForm({
         id: '',
@@ -58,7 +74,7 @@ export default function Students() {
     });
 
     const requiredHoursForm = useForm({
-        required_hours: '',
+        required_hours: coordinator.program.required_hours?.toString() ?? '',
     });
 
     const handleEdit = (student: Student) => {
@@ -87,54 +103,65 @@ export default function Students() {
         requiredHoursForm.post(route('coordinator.students.required-hours'), {
             onSuccess: () => {
                 setRequiredHoursModal(false);
-                requiredHoursForm.reset();
             },
         });
     };
+
+    console.log(students);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Students | Coordinator" />
             <div className="flex flex-col gap-4 p-4">
-                <div className="flex justify-between">
-                    <h1 className="font-bold">{coordinator.program.name}</h1>
-                    <Dialog open={requiredHoursModal} onOpenChange={setRequiredHoursModal}>
-                        <DialogTrigger asChild>
-                            <Button size="sm" variant="outline">
-                                <Plus className="h-4 w-4" />
-                                Add Required Hours
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Add Required Hours</DialogTitle>
-                                <DialogDescription>Add the required hours for the program.</DialogDescription>
-                            </DialogHeader>
-                            <form onSubmit={handleAddRequiredHours}>
-                                <div className="grid gap-4 py-4">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="required_hours">Required Hours</Label>
-                                        <Input
-                                            type="number"
-                                            id="required_hours"
-                                            value={requiredHoursForm.data.required_hours}
-                                            onChange={(e) => requiredHoursForm.setData('required_hours', e.target.value)}
-                                        />
-                                        {requiredHoursForm.errors.required_hours && (
-                                            <p className="text-sm text-red-500">{requiredHoursForm.errors.required_hours}</p>
-                                        )}
+                <div className="flex w-full flex-col justify-between gap-2 sm:flex-row">
+                    <div className="flex items-center gap-2">
+                        <h1 className="font-bold">{coordinator.program.name}</h1>
+                    </div>
+                    <div className="flex w-full flex-1/2 items-center gap-2 sm:justify-end">
+                        <div className="relative">
+                            <Search className="absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2 transform text-gray-500" />
+                            <Input type="text" placeholder="Search students..." className="max-w-sm pl-8" value={search} onChange={handleSearch} />
+                        </div>
+                        <Dialog open={requiredHoursModal} onOpenChange={setRequiredHoursModal}>
+                            <DialogTrigger asChild>
+                                <Button variant="outline">
+                                    <Plus className="h-4 w-4" />
+                                    {coordinator.program.required_hours ? 'Update Required Hours' : 'Add Required Hours'}
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>{coordinator.program.required_hours ? 'Update Required Hours' : 'Add Required Hours'}</DialogTitle>
+                                    <DialogDescription>
+                                        {coordinator.program.required_hours ? 'Update ' : 'Add '} the required hours for the program.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <form onSubmit={handleAddRequiredHours}>
+                                    <div className="grid gap-4 py-4">
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="required_hours">Required Hours</Label>
+                                            <Input
+                                                type="number"
+                                                id="required_hours"
+                                                value={requiredHoursForm.data.required_hours}
+                                                onChange={(e) => requiredHoursForm.setData('required_hours', e.target.value)}
+                                            />
+                                            {requiredHoursForm.errors.required_hours && (
+                                                <p className="text-sm text-red-500">{requiredHoursForm.errors.required_hours}</p>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                                <DialogFooter>
-                                    <Button type="submit" className="text-white" disabled={requiredHoursForm.processing}>
-                                        {requiredHoursForm.processing ? 'Saving...' : 'Save Changes'}
-                                    </Button>
-                                </DialogFooter>
-                            </form>
-                        </DialogContent>
-                    </Dialog>
+                                    <DialogFooter>
+                                        <Button type="submit" className="text-white" disabled={requiredHoursForm.processing}>
+                                            {requiredHoursForm.processing ? 'Saving...' : 'Save Changes'}
+                                        </Button>
+                                    </DialogFooter>
+                                </form>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
                 </div>
-                <p className="text-muted-foreground -mt-4 text-sm">Manage your students here.</p>
+                <p className="text-muted-foreground -mt-4 hidden text-sm sm:block">Manage your students here.</p>
 
                 <div className="overflow-hidden rounded-lg border">
                     <Table>
@@ -143,8 +170,7 @@ export default function Students() {
                                 <TableHead>Student ID</TableHead>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Email</TableHead>
-                                <TableHead>Department</TableHead>
-                                <TableHead>Program</TableHead>
+                                <TableHead>Company</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead>Actions</TableHead>
                             </TableRow>
@@ -156,8 +182,7 @@ export default function Students() {
                                         <TableCell className="w-[100px]">{student.student_id}</TableCell>
                                         <TableCell>{student.user?.name}</TableCell>
                                         <TableCell>{student.user?.email}</TableCell>
-                                        <TableCell>{student.department.name}</TableCell>
-                                        <TableCell>{student.program.name}</TableCell>
+                                        <TableCell>{student.company_submission?.company_name ?? 'N/A'}</TableCell>
                                         <TableCell>
                                             <UserStatusBadge status={student.status} />
                                         </TableCell>
@@ -181,7 +206,31 @@ export default function Students() {
                                                         </Button>
                                                     </TooltipTrigger>
                                                     <TooltipContent>
-                                                        <p className="text-white">Edit</p>
+                                                        <p className="text-white">Edit Status</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Link href={route('coordinator.students.journals', { id: student.user.id })}>
+                                                            <Button size="sm" variant="outline">
+                                                                <BookOpen className="h-4 w-4" />
+                                                            </Button>
+                                                        </Link>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p className="text-white">Show Journals</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Link href={route('coordinator.students.ojt-logs', { id: student.user.id })}>
+                                                            <Button size="sm" variant="outline">
+                                                                <Logs className="h-4 w-4" />
+                                                            </Button>
+                                                        </Link>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p className="text-white">Show OJT Logs</p>
                                                     </TooltipContent>
                                                 </Tooltip>
                                             </div>

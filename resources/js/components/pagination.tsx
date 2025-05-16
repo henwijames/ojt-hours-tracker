@@ -23,7 +23,7 @@ export default function PaginationComponent({ links, prevPageUrl, nextPageUrl, c
             <PaginationContent>
                 {prevPageUrl && (
                     <PaginationItem>
-                        <PaginationPrevious onClick={() => handlePagination(prevPageUrl)} />
+                        <PaginationPrevious className="cursor-pointer" onClick={() => handlePagination(prevPageUrl)} />
                     </PaginationItem>
                 )}
 
@@ -31,7 +31,7 @@ export default function PaginationComponent({ links, prevPageUrl, nextPageUrl, c
                     .filter((link) => link.label.match(/^\d+$/))
                     .map((link, index) => (
                         <PaginationItem key={index}>
-                            <PaginationLink isActive={link.active} onClick={() => handlePagination(link.url)}>
+                            <PaginationLink className="cursor-pointer" isActive={link.active} onClick={() => handlePagination(link.url)}>
                                 {link.label}
                             </PaginationLink>
                         </PaginationItem>
@@ -39,7 +39,7 @@ export default function PaginationComponent({ links, prevPageUrl, nextPageUrl, c
 
                 {nextPageUrl && (
                     <PaginationItem>
-                        <PaginationNext onClick={() => handlePagination(nextPageUrl)} />
+                        <PaginationNext className="cursor-pointer" onClick={() => handlePagination(nextPageUrl)} />
                     </PaginationItem>
                 )}
             </PaginationContent>

@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import type { NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Bell, Building, Clock, GraduationCap, LayoutGrid, Megaphone, School, Users } from 'lucide-react';
+import { Bell, Book, Building, Clock, GraduationCap, LayoutGrid, Megaphone, School, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 export function AppSidebar() {
@@ -37,6 +37,7 @@ export function AppSidebar() {
         { title: 'Company', href: '/student/company/', icon: Building },
         { title: 'Announcements', href: '/student/announcements', icon: Megaphone },
         { title: 'Reminders', href: '/student/reminders', icon: Bell },
+        { title: 'OJT Journals', href: '/student/journals', icon: Book },
     ];
 
     let mainNavItems: NavItem[] = [];
@@ -51,9 +52,19 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/dashboard" prefetch>
-                                <AppLogo />
-                            </Link>
+                            {role === 'student' ? (
+                                <Link href="/student/dashboard" prefetch>
+                                    <AppLogo />
+                                </Link>
+                            ) : role === 'coordinator' ? (
+                                <Link href="/coordinator/dashboard" prefetch>
+                                    <AppLogo />
+                                </Link>
+                            ) : (
+                                <Link href="/admin/dashboard" prefetch>
+                                    <AppLogo />
+                                </Link>
+                            )}
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>

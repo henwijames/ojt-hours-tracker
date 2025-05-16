@@ -12,18 +12,24 @@ class RoleMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @param  string  ...$roles
+     * @return \Symfony\Component\HttpFoundation\Response
+     *
+     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
      */
-    public function handle(Request $request, Closure $next, ...$roles): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         if (!Auth::check()) {
-            return redirect()->route('login');
+            return redirect()->route('login')->with('error', 'Please login first.');
         }
 
-        if (!in_array(Auth::user()->role, $roles)) {
-            abort(403, 'Unauthorized');
-        }
+        $user = Auth::user();
 
+        if (!$user || !in_array($user->role, $roles, true)) {
+            abort(403, 'You do not have permission to access this resource.');
+        }
 
         return $next($request);
     }

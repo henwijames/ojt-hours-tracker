@@ -3,6 +3,7 @@
 use App\Http\Controllers\Student\AnnouncementController;
 use App\Http\Controllers\Student\CompanySubmissionController;
 use App\Http\Controllers\Student\DashboardController;
+use App\Http\Controllers\Student\JournalController;
 use App\Http\Controllers\Student\TimeRecordController;
 use App\Models\Announcements;
 use Illuminate\Support\Facades\Auth;
@@ -38,5 +39,13 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::get('/', 'index')->name('index');
     Route::post('/time-in', 'timeIn')->name('time-in');
     Route::post('/time-out', 'timeOut')->name('time-out');
+  });
+
+  Route::controller(JournalController::class)->prefix('journals')->name('journals.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::post('/', 'store')->name('store');
+    Route::get('/edit/{journal}', 'edit')->name('edit');
+    Route::put('/{journal}', 'update')->name('update');
+    Route::delete('/{journal}', 'destroy')->name('destroy');
   });
 });

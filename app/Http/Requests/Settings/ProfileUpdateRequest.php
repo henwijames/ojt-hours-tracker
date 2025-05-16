@@ -22,9 +22,8 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
-
             'email' => [
                 'required',
                 'string',
@@ -33,7 +32,13 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
-            'student_id' => ['required', 'string', 'max:255'],
         ];
+
+        // Only add student_id validation if the user is a student
+        if ($this->user()->role === 'student') {
+            $rules['student_id'] = ['required', 'string', 'max:255'];
+        }
+
+        return $rules;
     }
 }

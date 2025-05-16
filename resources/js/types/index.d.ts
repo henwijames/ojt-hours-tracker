@@ -83,6 +83,11 @@ export interface Students {
         created_at: string;
         updated_at: string;
     };
+    company_submission?: {
+        id: number;
+        company_name: string;
+        status: string;
+    } | null;
 }
 
 export interface Coordinator {
@@ -148,4 +153,11 @@ export interface PaginationComponentProps {
     currentPage: number | null;
     lastPage: number | null;
     handlePagination: (url: string | null) => void;
+}
+
+export interface Journal {
+    id: number;
+    title: string;
+    description: string;
+    [key: string]: string | number;
 }

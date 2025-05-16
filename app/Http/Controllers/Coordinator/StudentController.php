@@ -3,27 +3,43 @@
 namespace App\Http\Controllers\Coordinator;
 
 use App\Http\Controllers\Controller;
+use App\Models\CompanySubmission;
 use App\Models\Department;
 use App\Models\Student;
 use App\Models\User;
+use App\Models\Journal;
+use App\Models\TimeRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class StudentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->input('search');
         $coordinator = Auth::user()->coordinator()->with(['department', 'program'])->first();
 
         $departments = Department::with('programs')->get();
 
-        $students = Student::with(['user', 'department', 'program'])->where('department_id', $coordinator->department_id)->paginate(10);
+        $students = Student::with(['user', 'department', 'program', 'company_submission'])
+            ->when($search, function ($query, $search) {
+                $query->whereHas('user', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->where('department_id', $coordinator->department_id)
+            ->paginate(10);
 
         return Inertia::render('coordinator/students', [
             'students' => $students,
             'departments' => $departments,
             'coordinator' => $coordinator,
+            'filters' => [
+                'search' => $search
+            ]
         ]);
     }
 
@@ -33,7 +49,8 @@ class StudentController extends Controller
             'status' => 'required|in:active,inactive,pending',
         ]);
 
-        $student->update($request->only('status'));
+        $student->status = $request->status;
+        $student->save();
 
         return redirect()->back()->with([
             'toast' => true,
@@ -51,14 +68,47 @@ class StudentController extends Controller
         $coordinator = Auth::user()->coordinator;
         $program = $coordinator->program;
 
-        $program->update([
-            'required_hours' => $request->required_hours
-        ]);
+        $program->required_hours = $request->required_hours;
+        $program->save();
 
         return redirect()->back()->with([
             'toast' => true,
             'type' => 'success',
             'message' => 'Required hours updated successfully.',
+        ]);
+    }
+
+    public function show($id)
+    {
+        $coordinator = Auth::user()->coordinator;
+
+        $student = Student::with(['user', 'department', 'program'])
+            ->where('user_id', $id)
+            ->where('program_id', $coordinator->program_id)
+            ->firstOrFail();
+
+        $journals = Journal::where('student_id', $student->user_id)->get();
+
+        return Inertia::render('coordinator/student-journals', [
+            'student' => $student,
+            'journals' => $journals,
+        ]);
+    }
+
+    public function ojtLogs($id)
+    {
+        $coordinator = Auth::user()->coordinator;
+
+        $student = Student::with(['user', 'department', 'program'])
+            ->where('user_id', $id)
+            ->where('program_id', $coordinator->program_id)
+            ->firstOrFail();
+
+        $timeRecords = TimeRecord::where('student_id', $student->user_id)->get();
+
+        return Inertia::render('coordinator/student-ojt-logs', [
+            'student' => $student,
+            'timeRecords' => $timeRecords,
         ]);
     }
 }

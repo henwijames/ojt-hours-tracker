@@ -125,79 +125,87 @@ export default function CompanySubmissions({ companySubmissions }: PageProps) {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {companySubmissions.data.map((submission) => (
-                                    <TableRow key={submission.id}>
-                                        <TableCell>
-                                            <div>
-                                                <p className="font-medium">{submission.student.user.name}</p>
-                                                <p className="text-muted-foreground text-sm">{submission.student.user.email}</p>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>{acronymText(submission.student.program.name)}</TableCell>
-                                        <TableCell>
-                                            <div>
-                                                <p className="font-medium">{submission.company_name}</p>
-                                                <p className="text-muted-foreground text-sm">{submission.company_address}</p>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div>
-                                                <p className="font-medium">{submission.supervisor_name}</p>
-                                                <p className="text-muted-foreground text-sm">{submission.supervisor_contact}</p>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                variant={getVariant(submission.status)}
-                                                className="flex items-center px-2 py-1 text-xs font-medium capitalize"
-                                            >
-                                                {getIcon(submission.status)}
-                                                {submission.status}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>{formatDate(submission.submitted_at)}</TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-2">
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Button size="sm" variant="outline" onClick={() => handleViewMoa(submission.moa_path)}>
-                                                            <Download className="h-4 w-4" />
-                                                        </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>Download MOA</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
+                                {companySubmissions.data.length > 0 ? (
+                                    companySubmissions.data.map((submission) => (
+                                        <TableRow key={submission.id}>
+                                            <TableCell>
+                                                <div>
+                                                    <p className="font-medium">{submission.student.user.name}</p>
+                                                    <p className="text-muted-foreground text-sm">{submission.student.user.email}</p>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>{acronymText(submission.student.program.name)}</TableCell>
+                                            <TableCell>
+                                                <div>
+                                                    <p className="font-medium">{submission.company_name}</p>
+                                                    <p className="text-muted-foreground text-sm">{submission.company_address}</p>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div>
+                                                    <p className="font-medium">{submission.supervisor_name}</p>
+                                                    <p className="text-muted-foreground text-sm">{submission.supervisor_contact}</p>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    variant={getVariant(submission.status)}
+                                                    className="flex items-center px-2 py-1 text-xs font-medium capitalize"
+                                                >
+                                                    {getIcon(submission.status)}
+                                                    {submission.status}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>{formatDate(submission.submitted_at)}</TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Button size="sm" variant="outline" onClick={() => handleViewMoa(submission.moa_path)}>
+                                                                <Download className="h-4 w-4" />
+                                                            </Button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Download MOA</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
 
-                                                {submission.status === 'pending' && (
-                                                    <>
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <Button size="sm" variant="outline" onClick={() => handleApprove(submission.id)}>
-                                                                    <CheckCircle2 className="h-4 w-4" />
-                                                                </Button>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent>
-                                                                <p>Approve</p>
-                                                            </TooltipContent>
-                                                        </Tooltip>
+                                                    {submission.status === 'pending' && (
+                                                        <>
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <Button size="sm" variant="outline" onClick={() => handleApprove(submission.id)}>
+                                                                        <CheckCircle2 className="h-4 w-4" />
+                                                                    </Button>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent>
+                                                                    <p>Approve</p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
 
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <Button size="sm" variant="outline" onClick={() => handleReject(submission.id)}>
-                                                                    <AlertCircle className="h-4 w-4" />
-                                                                </Button>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent>
-                                                                <p>Reject</p>
-                                                            </TooltipContent>
-                                                        </Tooltip>
-                                                    </>
-                                                )}
-                                            </div>
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <Button size="sm" variant="outline" onClick={() => handleReject(submission.id)}>
+                                                                        <AlertCircle className="h-4 w-4" />
+                                                                    </Button>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent>
+                                                                    <p>Reject</p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={7} className="text-center">
+                                            No company submissions found.
                                         </TableCell>
                                     </TableRow>
-                                ))}
+                                )}
                             </TableBody>
                         </Table>
                     </div>

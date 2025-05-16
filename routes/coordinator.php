@@ -10,7 +10,9 @@ Route::middleware(['auth', 'role:coordinator'])->prefix('coordinator')->name('co
   Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
   Route::resource('students', StudentController::class)->only(['index', 'update']);
+  Route::get('students/journals/{id}', [StudentController::class, 'show'])->name('students.journals');
   Route::post('students/required-hours', [StudentController::class, 'updateRequiredHours'])->name('students.required-hours');
+  Route::get('students/ojt-logs/{id}', [StudentController::class, 'ojtLogs'])->name('students.ojt-logs');
   Route::resource('announcements', AnnouncementController::class)->only(['index', 'store', 'update', 'destroy']);
 
   Route::controller(CompanySubmissionController::class)

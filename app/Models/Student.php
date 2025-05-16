@@ -35,13 +35,18 @@ class Student extends Model
         return $this->belongsTo(Coordinator::class);
     }
 
-    public function companySubmission()
+    public function company_submission()
     {
-        return $this->hasOne(CompanySubmission::class, 'student_id');
+        return $this->hasOne(CompanySubmission::class, 'student_id', 'user_id');
     }
 
-    public function timeRecords()
+    public function time_records()
     {
         return $this->hasMany(TimeRecord::class, 'user_id');
+    }
+
+    public function journals()
+    {
+        return $this->hasMany(Journal::class, 'student_id')->orderBy('date', 'desc');
     }
 }

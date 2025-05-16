@@ -11,11 +11,11 @@ import { FormEvent } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Company',
+        title: 'Company Submission',
         href: '/student/company',
     },
     {
-        title: 'Edit Submission',
+        title: 'Edit Company Submission',
         href: '/student/company/edit',
     },
 ];

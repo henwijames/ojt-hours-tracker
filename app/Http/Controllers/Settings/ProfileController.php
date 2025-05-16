@@ -30,7 +30,10 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = Auth::user();
-        $user->fill($request->validated());
+
+        // Update basic user information
+        $userData = $request->safe()->only(['name', 'email']);
+        $user->fill($userData);
 
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
@@ -38,14 +41,18 @@ class ProfileController extends Controller
 
         $user->save();
 
-        if ($user->student) {
+        // Update student information only if user is a student
+        if ($user->role === 'student') {
             $user->student->update([
                 'student_id' => $request->validated('student_id'),
-                // Add more fields if needed
             ]);
         }
 
-        return to_route('profile.edit');
+        return redirect()->back()->with([
+            'toast' => true,
+            'type' => 'success',
+            'message' => 'Account updated successfully.',
+        ]);
     }
 
     /**
