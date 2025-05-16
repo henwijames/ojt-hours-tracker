@@ -200,7 +200,6 @@ export default function Register({ departments }: Props) {
                                 type={showPassword ? 'text' : 'password'}
                                 required
                                 tabIndex={3}
-                                autoComplete="new-password"
                                 value={data.password}
                                 onChange={(e) => setData('password', e.target.value)}
                                 disabled={processing}
@@ -225,7 +224,6 @@ export default function Register({ departments }: Props) {
                             type="password"
                             required
                             tabIndex={4}
-                            autoComplete="new-password"
                             value={data.password_confirmation}
                             onChange={(e) => setData('password_confirmation', e.target.value)}
                             disabled={processing}

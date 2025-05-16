@@ -336,16 +336,19 @@ export default function Users({
         setOpen(true);
     };
 
-    const handleStudentSaveChanges = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (!selectedStudent) return;
+    const handleStudentSaveChanges = useCallback(
+        (e: React.FormEvent<HTMLFormElement>) => {
+            e.preventDefault();
+            if (!selectedStudent) return;
 
-        putStudent(route('admin.users.update', selectedStudent.id), {
-            onSuccess: () => {
-                setOpen(false);
-            },
-        });
-    };
+            putStudent(route('admin.users.update', selectedStudent.id), {
+                onSuccess: () => {
+                    setOpen(false);
+                },
+            });
+        },
+        [selectedStudent, putStudent, setOpen],
+    );
 
     const handleCoordinatorSaveChanges = useCallback(
         (e: React.FormEvent<HTMLFormElement>) => {
