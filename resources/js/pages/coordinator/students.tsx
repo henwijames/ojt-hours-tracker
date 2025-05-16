@@ -9,9 +9,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import UserStatusBadge from '@/components/user-status-badge';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Coordinator, Students as Student } from '@/types';
-import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { BookOpen, Eye, Logs, Pencil, Plus, Search } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -56,15 +56,8 @@ export default function Students() {
 
     const studentData = students.data ?? [];
 
-    const debouncedSearch = useCallback((query: string) => {
-        debounce((value: string) => {
-            router.get(route('coordinator.students.index'), { search: value }, { preserveState: true, preserveScroll: true });
-        }, 300)(query);
-    }, []);
-
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value);
-        debouncedSearch(e.target.value);
     };
 
     const editStudent = useForm({

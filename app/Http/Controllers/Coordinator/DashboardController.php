@@ -18,6 +18,10 @@ class DashboardController extends Controller
     {
         $coordinator = Auth::user()->coordinator()->with(['department', 'program'])->first();
 
+        if (!$coordinator) {
+            abort(403, 'Coordinator not found or not linked to user.');
+        }
+
         $students = Student::with(['user', 'department', 'program'])->where('department_id', $coordinator->department_id)->paginate(10);
 
         // dd($students);

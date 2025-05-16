@@ -52,12 +52,12 @@ class RegisteredUserController extends Controller
                 'unique:students,student_id',
             ],
             'department_id' => [
-                Rule::requiredIf(fn() => $request->role === 'student'),
+                Rule::requiredIf(fn() => $request->role === 'student' || $request->role === 'coordinator'),
                 'nullable',
                 'exists:departments,id',
             ],
             'program_id' => [
-                Rule::requiredIf(fn() => $request->role === 'student'),
+                Rule::requiredIf(fn() => $request->role === 'student' || $request->role === 'coordinator'),
                 'nullable',
                 'exists:programs,id',
             ],
@@ -89,6 +89,9 @@ class RegisteredUserController extends Controller
         } elseif ($request->role === 'coordinator') {
             Coordinator::create([
                 'user_id' => $user->id,
+                'department_id' => $request->department_id,
+                'program_id' => $request->program_id,
+                'status' => 'pending'
             ]);
 
             return redirect()->route('login')->with([
