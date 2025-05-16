@@ -68,7 +68,6 @@ export default function Register({ departments }: Props) {
         const dept = departments.find((department) => department.id.toString() === value);
         setSelectedDepartment(dept || null); // Update the selected department
     };
-    console.log('Selected Department:', data.role);
     return (
         <AuthLayout title="Create an account" description="Enter your details below to create your account">
             <Head title="Register" />

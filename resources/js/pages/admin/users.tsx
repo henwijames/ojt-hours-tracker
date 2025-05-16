@@ -12,7 +12,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Department, type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { Pencil, Trash } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -322,13 +322,13 @@ export default function Users({
             name: coordinator.name,
             email: coordinator.email,
             status: coordinator.coordinator.status ?? '',
-            department_id: coordinator.coordinator.department_id.toString(),
-            program_id: coordinator.coordinator.program_id.toString(),
+            department_id: coordinator.coordinator.department_id?.toString() ?? '',
+            program_id: coordinator.coordinator.program_id?.toString() ?? '',
         });
 
         // Set selected department for program dropdown
         if (coordinator.coordinator?.department_id) {
-            const dept = departments.find((d) => d.id.toString() === coordinator.coordinator?.department_id.toString());
+            const dept = departments.find((d) => d.id.toString() === coordinator.coordinator?.department_id?.toString());
             setSelectedDepartment(dept ?? null);
         }
 
@@ -347,16 +347,19 @@ export default function Users({
         });
     };
 
-    const handleCoordinatorSaveChanges = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (!selectedCoordinator) return;
+    const handleCoordinatorSaveChanges = useCallback(
+        (e: React.FormEvent<HTMLFormElement>) => {
+            e.preventDefault();
+            if (!selectedCoordinator) return;
 
-        putCoordinator(route('admin.users.update', selectedCoordinator.id), {
-            onSuccess: () => {
-                setOpen(false);
-            },
-        });
-    };
+            putCoordinator(route('admin.users.update', selectedCoordinator.id), {
+                onSuccess: () => {
+                    setOpen(false);
+                },
+            });
+        },
+        [selectedCoordinator, putCoordinator, setOpen],
+    );
 
     // Memoized handlers for form submission
     const activeFormProps = useMemo(() => {
