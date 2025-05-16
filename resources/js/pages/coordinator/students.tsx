@@ -10,7 +10,6 @@ import UserStatusBadge from '@/components/user-status-badge';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Coordinator, Students as Student } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import debounce from 'lodash.debounce';
 import { BookOpen, Eye, Logs, Pencil, Plus, Search } from 'lucide-react';
 import { useCallback, useState } from 'react';
 
