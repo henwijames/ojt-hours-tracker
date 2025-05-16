@@ -36,8 +36,6 @@ class ProgramController extends Controller
             'name' => 'required|string',
             'status' => 'required|in:active,inactive',
             'department_id' => 'required|exists:departments,id',
-            'coordinator_ids' => 'array',
-            'coordinator_ids.*' => 'exists:users,id',
         ]);
 
         $program->update([
@@ -49,7 +47,11 @@ class ProgramController extends Controller
         // Sync assigned coordinators
         $program->coordinators()->sync($validated['coordinator_ids']);
 
-        return redirect()->route('admin.programs.index');
+        return redirect()->route('admin.programs.index')->with([
+            'toast' => true,
+            'type' => 'success',
+            'message' => 'Program updated successfully.',
+        ]);
     }
 
 

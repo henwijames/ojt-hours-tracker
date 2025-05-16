@@ -90,7 +90,11 @@ class UserController extends Controller
             ]);
         }
 
-        return redirect()->back();
+        return redirect()->back()->with([
+            'toast' => true,
+            'message' => 'User updated successfully',
+            'type' => 'success',
+        ]);
     }
 
     /**
