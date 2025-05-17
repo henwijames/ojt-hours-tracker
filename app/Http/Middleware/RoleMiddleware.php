@@ -22,13 +22,25 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Please login first.');
+            return redirect()->route('login')->with([
+                'toast' => true,
+                'type' => 'error',
+                'message' => 'Your session has expired. Please login again.',
+            ]);
         }
 
         $user = Auth::user();
 
         if (!$user || !in_array($user->role, $roles, true)) {
-            abort(403, 'You do not have permission to access this resource.');
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')->with([
+                'toast' => true,
+                'type' => 'error',
+                'message' => 'You do not have permission to access this resource.',
+            ]);
         }
 
         return $next($request);

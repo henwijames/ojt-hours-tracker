@@ -1,4 +1,5 @@
 import PaginationComponent from '@/components/pagination';
+import StudentSkeleton from '@/components/student-skeleton';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -9,7 +10,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import UserStatusBadge from '@/components/user-status-badge';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Coordinator, Students as Student } from '@/types';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { BookOpen, Eye, Logs, Pencil, Plus, Search } from 'lucide-react';
 import { useState } from 'react';
 
@@ -53,11 +54,22 @@ export default function Students() {
     const [editModal, setEditModal] = useState(false);
     const [requiredHoursModal, setRequiredHoursModal] = useState(false);
     const [search, setSearch] = useState((filters?.search as string) ?? '');
+    const [loading, setLoading] = useState(false);
 
     const studentData = students.data ?? [];
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setLoading(true);
         setSearch(e.target.value);
+        router.get(
+            route('coordinator.students.index'),
+            { search: e.target.value },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                onFinish: () => setLoading(false),
+            },
+        );
     };
 
     const editStudent = useForm({
@@ -98,8 +110,6 @@ export default function Students() {
             },
         });
     };
-
-    console.log(students);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -168,7 +178,9 @@ export default function Students() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {studentData.length > 0 ? (
+                            {loading ? (
+                                <StudentSkeleton />
+                            ) : studentData.length > 0 ? (
                                 studentData.map((student) => (
                                     <TableRow key={student?.id}>
                                         <TableCell className="w-[100px]">{student.student_id}</TableCell>
@@ -240,13 +252,15 @@ export default function Students() {
                     </Table>
                 </div>
 
-                <PaginationComponent
-                    links={students.links}
-                    prevPageUrl={students.prev_page_url}
-                    nextPageUrl={students.next_page_url}
-                    currentPage={students.current_page}
-                    lastPage={students.last_page}
-                />
+                {!loading && (
+                    <PaginationComponent
+                        links={students.links}
+                        prevPageUrl={students.prev_page_url}
+                        nextPageUrl={students.next_page_url}
+                        currentPage={students.current_page}
+                        lastPage={students.last_page}
+                    />
+                )}
                 <Dialog open={editModal} onOpenChange={setEditModal}>
                     <DialogContent className="sm:max-w-[425px]">
                         <form onSubmit={handleSubmit}>
