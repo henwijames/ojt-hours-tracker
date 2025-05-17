@@ -115,8 +115,8 @@ export default function Dashboard({ auth, companySubmission, student, announceme
                         </CardHeader>
                         <CardContent className="flex items-center justify-between">
                             <div>
-                                <h2 className="font-bold">{companyData.company_name}</h2>
-                                <p className="text-xs capitalize">Status: {companyData.status}</p>
+                                <h2 className="font-bold">{companyData?.company_name ?? 'No Company Submitted'}</h2>
+                                <p className="text-xs capitalize">Status: {companyData?.status ?? 'No Company Submitted'}</p>
                             </div>
                             <Building className="h-12 w-12" strokeWidth={1} />
                         </CardContent>
