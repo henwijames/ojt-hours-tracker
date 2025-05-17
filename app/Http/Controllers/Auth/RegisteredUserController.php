@@ -79,6 +79,7 @@ class RegisteredUserController extends Controller
                 'student_id' => $request->student_id,
                 'program_id' => $request->program_id,  // Storing the program_id
                 'department_id' => $request->department_id,  // Storing the department_id
+                'status' => 'pending',
             ]);
 
             return redirect()->route('login')->with([
