@@ -55,6 +55,7 @@ export default function Students() {
     const [requiredHoursModal, setRequiredHoursModal] = useState(false);
     const [search, setSearch] = useState((filters?.search as string) ?? '');
     const [loading, setLoading] = useState(false);
+    const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
     const studentData = students.data ?? [];
 
@@ -82,11 +83,11 @@ export default function Students() {
     });
 
     const handleEdit = (student: Student) => {
+        setOpenDropdown(null);
         editStudent.setData({
             id: String(student.id),
             status: student.status,
         });
-
         setEditModal(true);
     };
 
@@ -191,14 +192,19 @@ export default function Students() {
                                             <UserStatusBadge status={student.status} />
                                         </TableCell>
                                         <TableCell className="w-[100px]">
-                                            <DropdownMenu>
+                                            <DropdownMenu
+                                                open={openDropdown === String(student.id)}
+                                                onOpenChange={(open) => {
+                                                    setOpenDropdown(open ? String(student.id) : null);
+                                                }}
+                                            >
                                                 <DropdownMenuTrigger asChild>
                                                     <Button size="sm" variant="outline">
                                                         <MoreHorizontal className="h-4 w-4" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent>
-                                                    <DropdownMenuItem onClick={() => handleEdit(student)}>
+                                                    <DropdownMenuItem onSelect={() => handleEdit(student)}>
                                                         <Pencil className="h-4 w-4" />
                                                         Edit Status
                                                     </DropdownMenuItem>
@@ -239,8 +245,22 @@ export default function Students() {
                         lastPage={students.last_page}
                     />
                 )}
-                <Dialog open={editModal} onOpenChange={setEditModal}>
-                    <DialogContent className="sm:max-w-[425px]">
+                <Dialog
+                    open={editModal}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            editStudent.reset();
+                        }
+                        setEditModal(open);
+                    }}
+                >
+                    <DialogContent
+                        className="sm:max-w-[425px]"
+                        onEscapeKeyDown={() => {
+                            setEditModal(false);
+                            editStudent.reset();
+                        }}
+                    >
                         <form onSubmit={handleSubmit}>
                             <DialogHeader>
                                 <DialogTitle>Edit Student Status</DialogTitle>

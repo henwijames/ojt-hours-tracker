@@ -68,7 +68,6 @@ class User extends Authenticatable
             'admin' => route('admin.dashboard'),
             'coordinator' => route('coordinator.dashboard'),
             'student' => route('student.dashboard'),
-            default => route('dashboard'),
         };
     }
 }

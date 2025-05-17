@@ -69,17 +69,12 @@ export default function Dashboard() {
 
     const studentData = students.data ?? [];
 
-    console.log('Student Data:', studentData); // Log the student data to check its structure
-
     const user = auth.user;
-    console.log('User:', user); // Log the user data to check its structure
 
     const activeStudentsCount = studentData.filter((student) => student.status === 'active').length;
     const inactiveStudentsCount = studentData.filter((student) => student.status === 'inactive').length;
     const pendingStudentsCount = studentData.filter((student) => student.status === 'pending').length;
 
-    console.log(activeStudentsCount, inactiveStudentsCount);
-    // Student status data for pie chart
     const studentStatusData = [
         { status: 'Active', count: activeStudentsCount, color: '#2563eb' }, // Blue color for active
         { status: 'Inactive', count: inactiveStudentsCount, color: '#dc2626' }, // Red color for inactive
@@ -148,7 +143,7 @@ export default function Dashboard() {
                                         No students found.
                                     </TableCell>
                                 </TableRow>
-                            )}{' '}
+                            )}
                         </TableBody>
                     </Table>
                 </div>
