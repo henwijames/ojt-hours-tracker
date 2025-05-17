@@ -3,15 +3,12 @@
 namespace App\Http\Controllers\Coordinator;
 
 use App\Http\Controllers\Controller;
-use App\Models\CompanySubmission;
 use App\Models\Department;
 use App\Models\Student;
-use App\Models\User;
 use App\Models\Journal;
 use App\Models\TimeRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class StudentController extends Controller
@@ -78,12 +75,12 @@ class StudentController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show(Student $student)
     {
         $coordinator = Auth::user()->coordinator;
 
         $student = Student::with(['user', 'department', 'program'])
-            ->where('user_id', $id)
+            ->where('user_id', $student->user_id)
             ->where('program_id', $coordinator->program_id)
             ->firstOrFail();
 
@@ -95,12 +92,12 @@ class StudentController extends Controller
         ]);
     }
 
-    public function ojtLogs($id)
+    public function ojtLogs(Student $student)
     {
         $coordinator = Auth::user()->coordinator;
 
         $student = Student::with(['user', 'department', 'program'])
-            ->where('user_id', $id)
+            ->where('user_id', $student->user_id)
             ->where('program_id', $coordinator->program_id)
             ->firstOrFail();
 

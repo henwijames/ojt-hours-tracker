@@ -2,16 +2,16 @@ import PaginationComponent from '@/components/pagination';
 import StudentSkeleton from '@/components/student-skeleton';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import UserStatusBadge from '@/components/user-status-badge';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Coordinator, Students as Student } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { BookOpen, Eye, Logs, Pencil, Plus, Search } from 'lucide-react';
+import { BookOpen, Logs, MoreHorizontal, Pencil, Plus, Search } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -191,53 +191,31 @@ export default function Students() {
                                             <UserStatusBadge status={student.status} />
                                         </TableCell>
                                         <TableCell className="w-[100px]">
-                                            <div className="flex items-center gap-2">
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Button size="sm" variant="outline">
-                                                            <Eye className="h-4 w-4" />
-                                                        </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p className="text-white">View</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Button size="sm" variant="outline" onClick={() => handleEdit(student)}>
-                                                            <Pencil className="h-4 w-4" />
-                                                        </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p className="text-white">Edit Status</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Link href={route('coordinator.students.journals', { id: student.user.id })}>
-                                                            <Button size="sm" variant="outline">
-                                                                <BookOpen className="h-4 w-4" />
-                                                            </Button>
-                                                        </Link>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p className="text-white">Show Journals</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Link href={route('coordinator.students.ojt-logs', { id: student.user.id })}>
-                                                            <Button size="sm" variant="outline">
-                                                                <Logs className="h-4 w-4" />
-                                                            </Button>
-                                                        </Link>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p className="text-white">Show OJT Logs</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                            </div>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button size="sm" variant="outline">
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent>
+                                                    <DropdownMenuItem onClick={() => handleEdit(student)}>
+                                                        <Pencil className="h-4 w-4" />
+                                                        Edit Status
+                                                    </DropdownMenuItem>
+                                                    <Link href={route('coordinator.students.journals', { student: student })}>
+                                                        <DropdownMenuItem>
+                                                            <BookOpen className="h-4 w-4" />
+                                                            Show Journals
+                                                        </DropdownMenuItem>
+                                                    </Link>
+                                                    <Link href={route('coordinator.students.ojt-logs', { student: student })}>
+                                                        <DropdownMenuItem>
+                                                            <Logs className="h-4 w-4" />
+                                                            Show OJT Logs
+                                                        </DropdownMenuItem>
+                                                    </Link>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                         </TableCell>
                                     </TableRow>
                                 ))
