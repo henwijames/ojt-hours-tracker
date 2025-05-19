@@ -68,7 +68,7 @@ export default function Dashboard({ auth, companySubmission, student, announceme
 
     console.log(companyData);
 
-    const progressValue = (Math.floor(student.completed_hours) / 486) * 100;
+    const progressValue = requiredHours > 0 ? (Math.floor(student.completed_hours) / requiredHours) * 100 : 0;
 
     const number = (n: number) => formatNumber(n);
 
