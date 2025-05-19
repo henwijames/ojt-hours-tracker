@@ -103,7 +103,7 @@ export default function Dashboard({ auth, companySubmission, student, announceme
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between text-xs">
                                     <span className="text-muted-foreground">Progress</span>
-                                    <span className="font-medium">{progress}%</span>
+                                    <span className="font-medium">{progress ?? 0}%</span>
                                 </div>
                                 <Progress value={progress} />
                             </div>
@@ -165,7 +165,7 @@ export default function Dashboard({ auth, companySubmission, student, announceme
                             </div>
                         </CardContent>
                         <CardFooter className="h-full items-end">
-                            <Link href={route('student.dashboard')} className="w-full">
+                            <Link href={route('student.time-records.index')} className="w-full">
                                 <Button variant="outline" className="w-full">
                                     <Plus className="h-4 w-4" />
                                     Submit New Log
