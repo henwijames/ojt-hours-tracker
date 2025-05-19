@@ -5,13 +5,12 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, TimeRecord } from '@/types';
 import { formatNumber } from '@/utils/number';
 import { Head, useForm } from '@inertiajs/react';
 import { format, parseISO } from 'date-fns';
-import { Loader2 } from 'lucide-react';
+import { Calendar, Loader2, XCircle } from 'lucide-react';
 import { FormEventHandler, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -83,11 +82,17 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
         setData('image', null);
     };
 
-    const hours = required_hours;
+    const hours = required_hours || 0;
+    const completed = completed_hours || 0;
 
     useEffect(() => {
-        setProgress((completed_hours / hours) * 100);
-    }, [completed_hours, hours]);
+        if (hours > 0) {
+            const calculatedProgress = (completed / hours) * 100;
+            setProgress(Math.min(Math.max(calculatedProgress, 0), 100));
+        } else {
+            setProgress(0);
+        }
+    }, [completed, hours]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -122,7 +127,6 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
             },
         });
     };
-    console.log(timeRecordToday);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -137,7 +141,7 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
                             <CardContent>
                                 <div className="flex flex-col gap-4">
                                     <div className="flex flex-col gap-2">
-                                        <p className="text-sm font-medium">Remaining Hours: {formatNumber(hours - completed_hours)}</p>
+                                        <p className="text-sm font-medium">Remaining Hours: {formatNumber(Math.max(hours - completed, 0))}</p>
                                         <Progress value={progress} />
                                         <div className="flex justify-between">
                                             <p className="text-sm font-medium">{formatNumber(progress)}% completed</p>
@@ -201,71 +205,88 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
                                             </form>
                                         </DialogContent>
                                     </Dialog>
-                                    {time_in === null ? (
-                                        <Button variant="outline" className="flex-grow" disabled>
-                                            Clock out
-                                        </Button>
-                                    ) : (
-                                        <Dialog open={isTimeOutOpen} onOpenChange={setIsTimeOutOpen}>
-                                            <DialogTrigger asChild>
-                                                <Button variant="outline" className="flex-grow" disabled={time_out !== null}>
-                                                    Clock out
-                                                </Button>
-                                            </DialogTrigger>
-                                            <DialogContent className="sm:max-w-[425px]">
-                                                <DialogHeader>
-                                                    <DialogTitle>Proof of Time Out</DialogTitle>
-                                                    <DialogDescription>Submit an image as proof of attendance.</DialogDescription>
-                                                </DialogHeader>
-                                                <form onSubmit={timeOutSubmit}>
-                                                    <div className="grid w-full max-w-sm items-center gap-1.5">
-                                                        <Label htmlFor="picture">Picture</Label>
-                                                        <Input
-                                                            id="picture"
-                                                            ref={fileRef}
-                                                            type="file"
-                                                            accept="image/*"
-                                                            onChange={handleFileChange}
-                                                            aria-label="Upload time out proof"
-                                                        />
-                                                        {errors.image && <p className="text-red-500">{errors.image}</p>}
-                                                    </div>
-                                                    <DialogFooter className="mt-2">
-                                                        <Button type="submit" disabled={processing}>
-                                                            Submit
-                                                            {processing && <Loader2 className="h-4 w-4 animate-spin" />}
-                                                        </Button>
-                                                    </DialogFooter>
-                                                </form>
-                                            </DialogContent>
-                                        </Dialog>
-                                    )}
+                                    <Dialog open={isTimeOutOpen} onOpenChange={setIsTimeOutOpen}>
+                                        <DialogTrigger asChild>
+                                            <Button variant="outline" className="flex-grow" disabled={time_in === null || time_out !== null}>
+                                                Clock Out
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="sm:max-w-[425px]">
+                                            <DialogHeader>
+                                                <DialogTitle>Proof of Time Out</DialogTitle>
+                                                <DialogDescription>Submit an image as proof of attendance.</DialogDescription>
+                                            </DialogHeader>
+                                            <form onSubmit={timeOutSubmit}>
+                                                <div className="grid w-full max-w-sm items-center gap-1.5">
+                                                    <Label htmlFor="picture">Picture</Label>
+                                                    <Input
+                                                        id="picture"
+                                                        ref={fileRef}
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={handleFileChange}
+                                                        aria-label="Upload time out proof"
+                                                    />
+                                                    {errors.image && <p className="text-red-500">{errors.image}</p>}
+                                                </div>
+                                                <DialogFooter className="mt-2">
+                                                    <Button type="submit" disabled={processing}>
+                                                        Submit
+                                                        {processing && <Loader2 className="h-4 w-4 animate-spin" />}
+                                                    </Button>
+                                                </DialogFooter>
+                                            </form>
+                                        </DialogContent>
+                                    </Dialog>
                                 </div>
                             </CardContent>
                         </Card>
                     </div>
                 </div>
-                <div className="overflow-hidden rounded-lg border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Time In</TableHead>
-                                <TableHead>Time Out</TableHead>
-                                <TableHead>Rendered hours</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {timeRecords.data.map((timeRecord) => (
-                                <TableRow key={timeRecord.id}>
-                                    <TableCell>{format(parseISO(timeRecord.created_at), 'MMMM dd, yyyy hh:mm a')}</TableCell>
-                                    <TableCell>{timeRecord.time_in ? format(parseISO(timeRecord.time_in), 'hh:mm a') : '-'}</TableCell>
-                                    <TableCell>{timeRecord.time_out ? format(parseISO(timeRecord.time_out), 'hh:mm a') : '-'}</TableCell>
-                                    <TableCell>{timeRecord.rendered_hours}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1">
+                    {timeRecords.data.map((timeRecord) => (
+                        <Card key={timeRecord.id} className="flex flex-col gap-4 overflow-visible p-4 shadow-md">
+                            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                                <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+                                    <div className="flex items-center gap-2">
+                                        <Calendar className="text-muted-foreground h-5 w-5" />
+                                        <span className="font-semibold">Time In:</span>
+                                        <span className="text-muted-foreground">
+                                            {timeRecord.time_in ? format(parseISO(timeRecord.time_in), 'MMMM dd, yyyy hh:mm:ss a') : 'Not recorded'}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <XCircle className="h-5 w-5 text-red-500" />
+                                        <span className="font-semibold">Time Out:</span>
+                                        <span className="text-muted-foreground">
+                                            {timeRecord.time_out ? format(parseISO(timeRecord.time_out), 'MMMM dd, yyyy hh:mm:ss a') : 'Not recorded'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="mt-2 flex gap-4">
+                                {timeRecord.time_in_image && (
+                                    <img
+                                        src={`/storage/${timeRecord.time_in_image}`}
+                                        alt="Time in proof"
+                                        className="h-32 w-32 rounded-lg border object-cover shadow-md"
+                                    />
+                                )}
+                                {timeRecord.time_out_image && (
+                                    <img
+                                        src={`/storage/${timeRecord.time_out_image}`}
+                                        alt="Time out proof"
+                                        className="h-32 w-32 rounded-lg border object-cover shadow-md"
+                                    />
+                                )}
+                            </div>
+                            {timeRecord.rendered_hours && (
+                                <div className="bg-muted mt-2 rounded-lg p-2 text-center">
+                                    <p className="text-sm font-medium">Rendered Hours: {timeRecord.rendered_hours}</p>
+                                </div>
+                            )}
+                        </Card>
+                    ))}
                 </div>
                 <PaginationComponent
                     links={timeRecords.links}
