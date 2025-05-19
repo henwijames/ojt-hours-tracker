@@ -47,10 +47,10 @@ class CompanySubmissionController extends Controller
         $validated['submitted_at'] = now();
 
         if ($request->hasFile('moa_path')) {
-            $validate['moa_path'] = $request->file('moa_path')->store('moa', 'public');
+            $validated['moa_path'] = $request->file('moa_path')->store('moa', 'public');
         }
 
-        CompanySubmission::create($validate);
+        CompanySubmission::create($validated);
 
         return redirect()->back()->with([
             'toast' => true,
