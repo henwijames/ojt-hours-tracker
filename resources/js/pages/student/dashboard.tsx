@@ -131,14 +131,20 @@ export default function Dashboard({ auth, companySubmission, student, announceme
                         <CardHeader>
                             <CardTitle>Latest Announcements</CardTitle>
                         </CardHeader>
-                        {announcements.map((announcement) => (
-                            <CardContent className="flex flex-col gap-2" key={announcement.id}>
-                                <div className="flex w-full items-center justify-between">
-                                    <h2 className="font-bold">{announcement.title}</h2>
-                                    <p className="text-xs">{format(parseISO(announcement.created_at), 'MM/dd/yyyy')}</p>
-                                </div>
+                        {announcements.length > 0 ? (
+                            announcements.map((announcement) => (
+                                <CardContent className="flex flex-col gap-2" key={announcement.id}>
+                                    <div className="flex w-full items-center justify-between">
+                                        <h2 className="font-bold">{announcement.title}</h2>
+                                        <p className="text-xs">{format(parseISO(announcement.created_at), 'MM/dd/yyyy')}</p>
+                                    </div>
+                                </CardContent>
+                            ))
+                        ) : (
+                            <CardContent className="flex flex-col gap-2">
+                                <p className="text-muted-foreground text-sm">No announcements yet.</p>
                             </CardContent>
-                        ))}
+                        )}
                         <CardFooter className="h-full items-end">
                             <Link href={route('student.announcements.index')} className="w-full cursor-pointer">
                                 <Button variant="outline" className="w-full">
@@ -153,11 +159,17 @@ export default function Dashboard({ auth, companySubmission, student, announceme
                         </CardHeader>
 
                         <CardContent className="flex flex-col">
-                            {timeRecords.map((timeRecord) => (
-                                <div className="flex items-center gap-2" key={timeRecord.id}>
-                                    <h2 className="font-bold">Last Log: {format(parseISO(timeRecord.time_in), 'MM/dd/yyyy')}</h2>
+                            {timeRecords.length > 0 ? (
+                                timeRecords.map((timeRecord) => (
+                                    <div className="flex items-center gap-2" key={timeRecord.id}>
+                                        <h2 className="font-bold">Last Log: {format(parseISO(timeRecord.time_in), 'MM/dd/yyyy')}</h2>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <p className="text-muted-foreground text-sm">No logs yet.</p>
                                 </div>
-                            ))}
+                            )}
 
                             <div className="flex items-center gap-2">
                                 <h2 className="font-bold">Total Logs: {totalTimeRecords}</h2>
