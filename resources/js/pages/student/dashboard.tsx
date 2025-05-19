@@ -64,17 +64,11 @@ export default function Dashboard({ auth, companySubmission, student, announceme
     const user = auth.user;
     const companyData = companySubmission;
 
-    // Debug logs
-    console.log('Student completed hours:', student.completed_hours);
-    console.log('Required hours:', requiredHours);
-
     // Ensure we have valid numbers and prevent NaN
     const completedHours = Number(student.completed_hours) || 0;
     const requiredHoursNum = Number(requiredHours) || 0;
 
     const progressValue = requiredHoursNum > 0 ? Math.min(100, Math.max(0, (completedHours / requiredHoursNum) * 100)) : 0;
-
-    console.log('Progress value:', progressValue);
 
     useEffect(() => {
         if (!isNaN(progressValue)) {
