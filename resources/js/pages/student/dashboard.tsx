@@ -103,7 +103,7 @@ export default function Dashboard({ auth, companySubmission, student, announceme
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between text-xs">
                                     <span className="text-muted-foreground">Progress</span>
-                                    <span className="font-medium">{progress ?? 0}%</span>
+                                    <span className="font-medium">{Number(progress)}%</span>
                                 </div>
                                 <Progress value={progress} />
                             </div>
