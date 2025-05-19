@@ -3,7 +3,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Progress } from '@/components/ui/progress';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
-import { formatNumber } from '@/utils/number';
 import { Head, Link } from '@inertiajs/react';
 import { format, parseISO } from 'date-fns';
 import { Building, Clock, Plus } from 'lucide-react';
@@ -63,18 +62,24 @@ export default function Dashboard({ auth, companySubmission, student, announceme
     const [progress, setProgress] = useState(0);
 
     const user = auth.user;
-
     const companyData = companySubmission;
 
-    console.log(companyData);
+    // Debug logs
+    console.log('Student completed hours:', student.completed_hours);
+    console.log('Required hours:', requiredHours);
 
-    const progressValue = requiredHours > 0 ? (Math.floor(student.completed_hours) / requiredHours) * 100 : 0;
+    // Ensure we have valid numbers and prevent NaN
+    const completedHours = Number(student.completed_hours) || 0;
+    const requiredHoursNum = Number(requiredHours) || 0;
 
-    const number = (n: number) => formatNumber(n);
+    const progressValue = requiredHoursNum > 0 ? Math.min(100, Math.max(0, (completedHours / requiredHoursNum) * 100)) : 0;
+
+    console.log('Progress value:', progressValue);
 
     useEffect(() => {
-        const timer = setTimeout(() => setProgress(number(progressValue)), 500);
-        return () => clearTimeout(timer);
+        if (!isNaN(progressValue)) {
+            setProgress(progressValue);
+        }
     }, [progressValue]);
 
     return (
@@ -94,7 +99,7 @@ export default function Dashboard({ auth, companySubmission, student, announceme
                                 <div>
                                     <h2 className="text-primary text-xs dark:text-gray-50">OJT Hours</h2>
                                     <p className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                                        {Math.floor(Number(student.completed_hours)) || 0}/{Number(requiredHours) || 0}
+                                        {completedHours}/{requiredHoursNum}
                                     </p>
                                 </div>
                                 <Clock className="h-12 w-12" strokeWidth={1} />
@@ -103,7 +108,7 @@ export default function Dashboard({ auth, companySubmission, student, announceme
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between text-xs">
                                     <span className="text-muted-foreground">Progress</span>
-                                    <span className="font-medium">{Number(progress)}%</span>
+                                    <span className="font-medium">{Math.round(progress)}%</span>
                                 </div>
                                 <Progress value={progress} />
                             </div>
