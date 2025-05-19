@@ -1,5 +1,5 @@
 import { type SharedData } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 import Logo from '/public/images/lc.png';
 
@@ -15,7 +15,7 @@ export default function Welcome() {
                     : user.role === 'coordinator'
                       ? route('coordinator.dashboard')
                       : route('student.dashboard');
-            router.visit(dashboardRoute);
+            window.location.href = dashboardRoute;
         }
     }, [user]);
 
