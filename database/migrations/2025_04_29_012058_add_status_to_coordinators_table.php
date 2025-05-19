@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('coordinators', function (Blueprint $table) {
-            $table->string('status')->default('pending')->after('program');
+            $table->string('status')->default('pending')->after('program_id');
         });
     }
 

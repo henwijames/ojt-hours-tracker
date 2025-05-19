@@ -19,12 +19,26 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $student = Student::where('user_id', Auth::user()->id)->first();
-        $submission = CompanySubmission::where('student_id', Auth::user()->id)->first();
-        $announcements = Announcements::where('program_id', Auth::user()->student->program_id)->latest()->limit(2)->get();
-        $timeRecords = TimeRecord::where('student_id', Auth::user()->id)->latest()->limit(1)->get();
-        $totalTimeRecords = TimeRecord::where('student_id', Auth::user()->id)->count();
-        $requiredHours = $student->program->required_hours;
+        $user = Auth::user();
+        $student = Student::where('user_id', $user->id)->first();
+        $announcements = collect(); // default empty
+        $requiredHours = 0;
+
+        if ($student) {
+            // Check if program relation is loaded
+            $program = $student->program;
+            if ($program) {
+                $requiredHours = $program->required_hours;
+                $announcements = Announcements::where('program_id', $program->id)
+                    ->latest()
+                    ->limit(2)
+                    ->get();
+            }
+        }
+
+        $submission = CompanySubmission::where('student_id', $user->id)->first();
+        $timeRecords = TimeRecord::where('student_id', $user->id)->latest()->limit(1)->get();
+        $totalTimeRecords = TimeRecord::where('student_id', $user->id)->count();
 
         return Inertia::render('student/dashboard', [
             'companySubmission' => $submission,
@@ -35,6 +49,7 @@ class DashboardController extends Controller
             'requiredHours' => $requiredHours,
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.

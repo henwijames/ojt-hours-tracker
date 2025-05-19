@@ -203,7 +203,7 @@ export default function Departments({ departments }: { departments: Department[]
                             <TableRow>
                                 <TableHead>Department</TableHead>
                                 <TableHead>Status</TableHead>
-                                <TableHead>Actions</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>

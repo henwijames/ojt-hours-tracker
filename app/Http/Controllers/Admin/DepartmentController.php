@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Department;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -11,6 +12,7 @@ use Inertia\Response;
 
 class DepartmentController extends Controller
 {
+    use HasFactory;
     public function index(): Response
     {
         return Inertia::render('admin/departments', [
