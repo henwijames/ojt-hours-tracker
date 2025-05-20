@@ -200,7 +200,7 @@ class TimeRecordController extends Controller
   private function storeTimeRecordImage($file): string
   {
     if ($this->storageDisk === 'private') {
-      $path = Storage::disk('private')->putFile(self::STORAGE_PATH, $file, 'public');
+      $path = Storage::disk('s3')->putFile(self::STORAGE_PATH, $file, 'public');
     } else {
       $path = $file->store(self::STORAGE_PATH, 'public');
     }
