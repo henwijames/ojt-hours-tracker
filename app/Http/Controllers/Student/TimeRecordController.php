@@ -20,7 +20,6 @@ class TimeRecordController extends Controller
   private const MAX_IMAGE_SIZE = 2048; // 2MB in KB
   private string $storageDisk;
   private const STORAGE_PATH = 'time-records';
-la
   public function __construct()
   {
     $this->storageDisk = env('APP_ENV') === 'production' ? 'public' : 'private';
