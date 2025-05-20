@@ -23,7 +23,8 @@ class TimeRecordController extends Controller
 
   public function __construct()
   {
-    $this->storageDisk = env('APP_ENV') === 'production' ? 's3' : 'public';
+
+    $this->storageDisk = 'public';
   }
 
   public function index()
@@ -96,9 +97,16 @@ class TimeRecordController extends Controller
     } catch (\Exception $e) {
       Log::error('Time in error: ' . $e->getMessage(), [
         'user_id' => Auth::id(),
-        'trace' => $e->getTraceAsString()
+        'trace' => $e->getTraceAsString(),
+        'file' => $request->file('image') ? [
+          'name' => $request->file('image')->getClientOriginalName(),
+          'size' => $request->file('image')->getSize(),
+          'mime' => $request->file('image')->getMimeType()
+        ] : null,
+        'storage_disk' => $this->storageDisk,
+        'storage_path' => self::STORAGE_PATH
       ]);
-      return $this->redirectWithError(null, 'Failed to record time in. Please try again.');
+      return $this->redirectWithError(null, 'Failed to record time in: ' . $e->getMessage());
     }
   }
 
