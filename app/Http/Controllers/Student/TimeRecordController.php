@@ -22,7 +22,7 @@ class TimeRecordController extends Controller
   private const STORAGE_PATH = 'time-records';
   public function __construct()
   {
-    $this->storageDisk = env('APP_ENV') === 'production' ? 'private' : 'public';
+    $this->storageDisk = 'public';
 
     Log::info('Storage disk initialized', [
       'storage_disk' => $this->storageDisk,
@@ -46,8 +46,12 @@ class TimeRecordController extends Controller
       ->latest()
       ->paginate(10)
       ->through(function ($record) {
-        $timeInImageUrl = $record->time_in_image ? ($this->storageDisk === 'private' ? "https://367be3a2035528943240074d0096e0cd.r2.cloudflarestorage.com/{$record->time_in_image}" : "/storage/{$record->time_in_image}") : null;
-        $timeOutImageUrl = $record->time_out_image ? ($this->storageDisk === 'private' ? "https://367be3a2035528943240074d0096e0cd.r2.cloudflarestorage.com/{$record->time_out_image}" : "/storage/{$record->time_out_image}") : null;
+        $baseUrl = app()->environment('production')
+          ? env('AWS_URL')
+          : '/storage';
+
+        $timeInImageUrl = $record->time_in_image ? "{$baseUrl}/{$record->time_in_image}" : null;
+        $timeOutImageUrl = $record->time_out_image ? "{$baseUrl}/{$record->time_out_image}" : null;
 
         return [
           'id' => $record->id,
@@ -199,24 +203,15 @@ class TimeRecordController extends Controller
 
   private function storeTimeRecordImage($file): string
   {
-    if ($this->storageDisk === 'private') {
-      $path = Storage::disk('s3')->putFile(self::STORAGE_PATH, $file, 'public');
+    if ($this->storageDisk === 'public') {
+      $path = Storage::disk('public')->putFile(self::STORAGE_PATH, $file, ['visibility' => 'public']);
     } else {
-      $path = $file->store(self::STORAGE_PATH, 'public');
+      $path = $file->store(self::STORAGE_PATH, ['disk' => 'public', 'visibility' => 'public']);
     }
 
     if (!$path) {
       throw new \Exception('Failed to upload image.');
     }
-
-    Log::info('Image uploaded successfully', [
-      'path' => $path,
-      'disk' => $this->storageDisk,
-      'full_url' => $this->storageDisk === 'private'
-        ? "https://367be3a2035528943240074d0096e0cd.r2.cloudflarestorage.com/{$path}"
-        : "/storage/{$path}",
-      'environment' => app()->environment()
-    ]);
 
     return $path;
   }
