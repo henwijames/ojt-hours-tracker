@@ -210,9 +210,11 @@ class TimeRecordController extends Controller
 
   private function storeTimeRecordImage($file): string
   {
-    $path = $this->storageDisk === 'private'
-      ? Storage::disk('s3')->putFile(self::STORAGE_PATH, $file)
-      : $file->store(self::STORAGE_PATH, 'public');
+    if ($this->storageDisk === 's3') {
+      $path = Storage::disk('s3')->putFile(self::STORAGE_PATH, $file, 'public');
+    } else {
+      $path = $file->store(self::STORAGE_PATH, 'public');
+    }
 
     if (!$path) {
       throw new \Exception('Failed to upload image.');
@@ -221,12 +223,15 @@ class TimeRecordController extends Controller
     Log::info('Image uploaded successfully', [
       'path' => $path,
       'disk' => $this->storageDisk,
-      'full_url' => $this->storageDisk === 'private' ? 'https://fls-9ef3d277-3ce2-48bd-8492-5ac8c1034c46.s3.amazonaws.com/' . $path : '/storage/' . $path,
+      'full_url' => $this->storageDisk === 's3'
+        ? "https://fls-9ef3d277-3ce2-48bd-8492-5ac8c1034c46.s3.amazonaws.com/{$path}"
+        : "/storage/{$path}",
       'environment' => app()->environment()
     ]);
 
     return $path;
   }
+
 
   private function calculateHoursWorked(Carbon $timeIn): float
   {
