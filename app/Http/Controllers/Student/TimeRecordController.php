@@ -46,8 +46,8 @@ class TimeRecordController extends Controller
       ->latest()
       ->paginate(10)
       ->through(function ($record) {
-        $timeInImageUrl = $record->time_in_image ? ($this->storageDisk === 's3' ? 'https://fls-9ef3d277-3ce2-48bd-8492-5ac8c1034c46.s3.amazonaws.com/' . $record->time_in_image : '/storage/' . $record->time_in_image) : null;
-        $timeOutImageUrl = $record->time_out_image ? ($this->storageDisk === 's3' ? 'https://fls-9ef3d277-3ce2-48bd-8492-5ac8c1034c46.s3.amazonaws.com/' . $record->time_out_image : '/storage/' . $record->time_out_image) : null;
+        $timeInImageUrl = $record->time_in_image ? ($this->storageDisk === 's3' ? 'https://fls-9ef3d277-3ce2-48bd-8492-5ac8c1034c46.367be3a2035528943240074d0096e0cdr2.cloudflarestorage.com' . $record->time_in_image : '/storage/' . $record->time_in_image) : null;
+        $timeOutImageUrl = $record->time_out_image ? ($this->storageDisk === 's3' ? 'https://fls-9ef3d277-3ce2-48bd-8492-5ac8c1034c46.367be3a2035528943240074d0096e0cdr2.cloudflarestorage.com' . $record->time_out_image : '/storage/' . $record->time_out_image) : null;
 
         return [
           'id' => $record->id,
@@ -213,7 +213,7 @@ class TimeRecordController extends Controller
       'path' => $path,
       'disk' => $this->storageDisk,
       'full_url' => $this->storageDisk === 'private'
-        ? "https://fls-9ef3d277-3ce2-48bd-8492-5ac8c1034c46.s3.amazonaws.com/{$path}"
+        ? "https://fls-9ef3d277-3ce2-48bd-8492-5ac8c1034c46.367be3a2035528943240074d0096e0cdr2.cloudflarestorage.com/{$path}"
         : "/storage/{$path}",
       'environment' => app()->environment()
     ]);
