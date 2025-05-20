@@ -22,7 +22,7 @@ class TimeRecordController extends Controller
   private const STORAGE_PATH = 'time-records';
   public function __construct()
   {
-    $this->storageDisk = env('APP_ENV') === 'production' ? 'public' : 'private';
+    $this->storageDisk = env('APP_ENV') === 'production' ? 'private' : 'public';
 
     Log::info('Storage disk initialized', [
       'storage_disk' => $this->storageDisk,
@@ -200,7 +200,7 @@ class TimeRecordController extends Controller
   private function storeTimeRecordImage($file): string
   {
     if ($this->storageDisk === 'private') {
-      $path = Storage::disk('s3')->putFile(self::STORAGE_PATH, $file, 'public');
+      $path = Storage::disk('private')->putFile(self::STORAGE_PATH, $file, 'public');
     } else {
       $path = $file->store(self::STORAGE_PATH, 'public');
     }
