@@ -20,10 +20,10 @@ class TimeRecordController extends Controller
   private const MAX_IMAGE_SIZE = 2048; // 2MB in KB
   private string $storageDisk;
   private const STORAGE_PATH = 'time-records';
-
+la
   public function __construct()
   {
-    $this->storageDisk = env('APP_ENV') === 'production' ? 'private' : 'public';
+    $this->storageDisk = env('APP_ENV') === 'production' ? 'public' : 'private';
 
     Log::info('Storage disk initialized', [
       'storage_disk' => $this->storageDisk,
@@ -49,16 +49,6 @@ class TimeRecordController extends Controller
       ->through(function ($record) {
         $timeInImageUrl = $record->time_in_image ? ($this->storageDisk === 'private' ? 'https://fls-9ef3d277-3ce2-48bd-8492-5ac8c1034c46.s3.amazonaws.com/' . $record->time_in_image : '/storage/' . $record->time_in_image) : null;
         $timeOutImageUrl = $record->time_out_image ? ($this->storageDisk === 'private' ? 'https://fls-9ef3d277-3ce2-48bd-8492-5ac8c1034c46.s3.amazonaws.com/' . $record->time_out_image : '/storage/' . $record->time_out_image) : null;
-
-        Log::info('Generating image URLs', [
-          'record_id' => $record->id,
-          'time_in_image' => $record->time_in_image,
-          'time_in_image_url' => $timeInImageUrl,
-          'time_out_image' => $record->time_out_image,
-          'time_out_image_url' => $timeOutImageUrl,
-          'storage_disk' => $this->storageDisk,
-          'aws_url' => env('AWS_URL')
-        ]);
 
         return [
           'id' => $record->id,
