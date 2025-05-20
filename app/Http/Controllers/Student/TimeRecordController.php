@@ -210,7 +210,10 @@ class TimeRecordController extends Controller
 
   private function storeTimeRecordImage($file): string
   {
-    $path = $file->store(self::STORAGE_PATH, $this->storageDisk);
+    $path = $this->storageDisk === 's3'
+      ? Storage::disk('s3')->putFile(self::STORAGE_PATH, $file)
+      : $file->store(self::STORAGE_PATH, 'public');
+
     if (!$path) {
       throw new \Exception('Failed to upload image.');
     }
