@@ -23,7 +23,13 @@ class TimeRecordController extends Controller
 
   public function __construct()
   {
-    $this->storageDisk = app()->environment('production') ? 's3' : 'public';
+    $this->storageDisk = env('APP_ENV') === 'production' ? 's3' : 'public';
+
+    Log::info('Storage disk initialized', [
+      'storage_disk' => $this->storageDisk,
+      'environment' => env('APP_ENV'),
+      'app_environment' => app()->environment()
+    ]);
   }
 
   public function index()
