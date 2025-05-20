@@ -4,6 +4,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="Easily monitor and manage student OJT hours at Lemery Colleges with our user-friendly tracking system. Designed for admins, coordinators, and students to ensure accurate, real-time updates and efficient reporting.">
+  <meta name="robots" content="index, follow">
+  <meta name="googlebot" content="index, follow">
+  <meta property="og:title" content="{{ config('app.name', 'OJT Hours Tracker') }}">
+  <meta property="og:description"
+    content="Easily monitor and manage student OJT hours at Lemery Colleges with our user-friendly tracking system.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ url()->current() }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ config('app.name', 'OJT Hours Tracker') }}">
+  <meta name="twitter:description"
+    content="Easily monitor and manage student OJT hours at Lemery Colleges with our user-friendly tracking system.">
 
   {{-- Inline script to detect system dark mode preference and apply it immediately --}}
   <script>
