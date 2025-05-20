@@ -93,7 +93,7 @@ export default function Dashboard({ auth, companySubmission, student, announceme
                                 <div>
                                     <h2 className="text-primary text-xs dark:text-gray-50">OJT Hours</h2>
                                     <p className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                                        {completedHours}/{requiredHoursNum}
+                                        {Math.floor(completedHours)}/{Math.floor(requiredHoursNum)}
                                     </p>
                                 </div>
                                 <Clock className="h-12 w-12" strokeWidth={1} />

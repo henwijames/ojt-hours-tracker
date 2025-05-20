@@ -18,8 +18,13 @@ use Illuminate\Validation\ValidationException;
 class TimeRecordController extends Controller
 {
   private const MAX_IMAGE_SIZE = 2048; // 2MB in KB
-  private const STORAGE_DISK = 'public';
+  private string $storageDisk;
   private const STORAGE_PATH = 'time-records';
+
+  public function __construct()
+  {
+    $this->storageDisk = env('APP_ENV') === 'production' ? 's3' : 'public';
+  }
 
   public function index()
   {
@@ -167,7 +172,7 @@ class TimeRecordController extends Controller
 
   private function storeTimeRecordImage($file): string
   {
-    $path = $file->store(self::STORAGE_PATH, self::STORAGE_DISK);
+    $path = $file->store(self::STORAGE_PATH, $this->storageDisk);
     if (!$path) {
       throw new \Exception('Failed to upload image.');
     }
