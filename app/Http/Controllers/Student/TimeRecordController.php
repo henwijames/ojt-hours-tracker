@@ -23,7 +23,7 @@ class TimeRecordController extends Controller
 
   public function __construct()
   {
-    $this->storageDisk = env('APP_ENV') === 'production' ? 's3' : 'public';
+    $this->storageDisk = env('APP_ENV') === 'production' ? 'private' : 'public';
 
     Log::info('Storage disk initialized', [
       'storage_disk' => $this->storageDisk,
@@ -210,7 +210,7 @@ class TimeRecordController extends Controller
 
   private function storeTimeRecordImage($file): string
   {
-    $path = $this->storageDisk === 's3'
+    $path = $this->storageDisk === 'private'
       ? Storage::disk('s3')->putFile(self::STORAGE_PATH, $file)
       : $file->store(self::STORAGE_PATH, 'public');
 
@@ -221,7 +221,7 @@ class TimeRecordController extends Controller
     Log::info('Image uploaded successfully', [
       'path' => $path,
       'disk' => $this->storageDisk,
-      'full_url' => $this->storageDisk === 's3' ? 'https://fls-9ef3d277-3ce2-48bd-8492-5ac8c1034c46.s3.amazonaws.com/' . $path : '/storage/' . $path,
+      'full_url' => $this->storageDisk === 'private' ? 'https://fls-9ef3d277-3ce2-48bd-8492-5ac8c1034c46.s3.amazonaws.com/' . $path : '/storage/' . $path,
       'environment' => app()->environment()
     ]);
 
@@ -263,6 +263,7 @@ class TimeRecordController extends Controller
     }
 
     $timeIn = Carbon::parse($record->time_in);
+
     $timeOut = Carbon::parse($record->time_out);
 
     return round(abs($timeOut->floatDiffInHours($timeIn)), 2);
