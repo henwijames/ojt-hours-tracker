@@ -1,3 +1,3 @@
 export const formatNumber = (value: number) => {
-    return parseFloat(Number(value).toFixed(0));
+    return Math.floor(Number(value));
 };

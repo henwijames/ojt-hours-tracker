@@ -246,51 +246,53 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
                 <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1">
                     {timeRecords.data.length > 0 ? (
                         timeRecords.data.map((timeRecord) => (
-                            <Card key={timeRecord.id} className="flex flex-col gap-4 overflow-visible p-4 shadow-md">
-                                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                                    <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
-                                        <div className="flex items-center gap-2">
-                                            <Calendar className="text-muted-foreground h-5 w-5" />
-                                            <span className="font-semibold">Time In:</span>
-                                            <span className="text-muted-foreground">
-                                                {timeRecord.time_in
-                                                    ? format(parseISO(timeRecord.time_in), 'MMMM dd, yyyy hh:mm:ss a')
-                                                    : 'Not recorded'}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <XCircle className="h-5 w-5 text-red-500" />
-                                            <span className="font-semibold">Time Out:</span>
-                                            <span className="text-muted-foreground">
-                                                {timeRecord.time_out
-                                                    ? format(parseISO(timeRecord.time_out), 'MMMM dd, yyyy hh:mm:ss a')
-                                                    : 'Not recorded'}
-                                            </span>
+                            <div key={timeRecord.id}>
+                                <Card className="flex flex-col gap-4 overflow-visible p-4 shadow-md">
+                                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                                        <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+                                            <div className="flex items-center gap-2">
+                                                <Calendar className="text-muted-foreground h-5 w-5" />
+                                                <span className="font-semibold">Time In:</span>
+                                                <span className="text-muted-foreground">
+                                                    {timeRecord.time_in
+                                                        ? format(parseISO(timeRecord.time_in), 'MMMM dd, yyyy hh:mm:ss a')
+                                                        : 'Not recorded'}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <XCircle className="h-5 w-5 text-red-500" />
+                                                <span className="font-semibold">Time Out:</span>
+                                                <span className="text-muted-foreground">
+                                                    {timeRecord.time_out
+                                                        ? format(parseISO(timeRecord.time_out), 'MMMM dd, yyyy hh:mm:ss a')
+                                                        : 'Not recorded'}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="mt-2 flex gap-4">
-                                    {timeRecord.time_in_image && (
-                                        <img
-                                            src={timeRecord.time_in_image}
-                                            alt="Time in proof"
-                                            className="h-32 w-32 rounded-lg border object-cover shadow-md"
-                                        />
-                                    )}
-                                    {timeRecord.time_out_image && (
-                                        <img
-                                            src={timeRecord.time_out_image}
-                                            alt="Time out proof"
-                                            className="h-32 w-32 rounded-lg border object-cover shadow-md"
-                                        />
-                                    )}
-                                </div>
-                                {timeRecord.rendered_hours && (
-                                    <div className="bg-muted mt-2 rounded-lg p-2 text-center">
-                                        <p className="text-sm font-medium">Rendered Hours: {timeRecord.rendered_hours}</p>
+                                    <div className="mt-2 flex gap-4">
+                                        {timeRecord.time_in_image && (
+                                            <img
+                                                src={timeRecord.time_in_image}
+                                                alt="Time in proof"
+                                                className="h-32 w-32 rounded-lg border object-cover shadow-md"
+                                            />
+                                        )}
+                                        {timeRecord.time_out_image && (
+                                            <img
+                                                src={timeRecord.time_out_image}
+                                                alt="Time out proof"
+                                                className="h-32 w-32 rounded-lg border object-cover shadow-md"
+                                            />
+                                        )}
                                     </div>
-                                )}
-                            </Card>
+                                    {timeRecord.rendered_hours && (
+                                        <div className="bg-muted mt-2 rounded-lg p-2 text-center">
+                                            <p className="text-sm font-medium">Rendered Hours: {timeRecord.rendered_hours}</p>
+                                        </div>
+                                    )}
+                                </Card>
+                            </div>
                         ))
                     ) : (
                         <div className="flex h-full flex-col items-center justify-center">
@@ -298,13 +300,15 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
                         </div>
                     )}
                 </div>
-                <PaginationComponent
-                    links={timeRecords.links}
-                    prevPageUrl={timeRecords.prev_page_url}
-                    nextPageUrl={timeRecords.next_page_url}
-                    currentPage={timeRecords.current_page}
-                    lastPage={timeRecords.last_page}
-                />
+                {timeRecords.data.length > 0 && (
+                    <PaginationComponent
+                        links={timeRecords.links}
+                        prevPageUrl={timeRecords.prev_page_url}
+                        nextPageUrl={timeRecords.next_page_url}
+                        currentPage={timeRecords.current_page}
+                        lastPage={timeRecords.last_page}
+                    />
+                )}
             </div>
         </AppLayout>
     );
