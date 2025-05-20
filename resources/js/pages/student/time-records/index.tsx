@@ -267,14 +267,14 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
                             <div className="mt-2 flex gap-4">
                                 {timeRecord.time_in_image && (
                                     <img
-                                        src={`/storage/${timeRecord.time_in_image}`}
+                                        src={timeRecord.time_in_image}
                                         alt="Time in proof"
                                         className="h-32 w-32 rounded-lg border object-cover shadow-md"
                                     />
                                 )}
                                 {timeRecord.time_out_image && (
                                     <img
-                                        src={`/storage/${timeRecord.time_out_image}`}
+                                        src={timeRecord.time_out_image}
                                         alt="Time out proof"
                                         className="h-32 w-32 rounded-lg border object-cover shadow-md"
                                     />

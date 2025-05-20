@@ -23,8 +23,7 @@ class TimeRecordController extends Controller
 
   public function __construct()
   {
-
-    $this->storageDisk = 'public';
+    $this->storageDisk = app()->environment('production') ? 's3' : 'public';
   }
 
   public function index()
@@ -40,7 +39,19 @@ class TimeRecordController extends Controller
     $timeRecords = TimeRecord::with('student')
       ->where('student_id', Auth::id())
       ->latest()
-      ->paginate(10);
+      ->paginate(10)
+      ->through(function ($record) {
+        return [
+          'id' => $record->id,
+          'date' => $record->date,
+          'time_in' => $record->time_in,
+          'time_out' => $record->time_out,
+          'time_in_image' => $record->time_in_image ? ($this->storageDisk === 's3' ? env('AWS_URL') . '/' . $record->time_in_image : '/storage/' . $record->time_in_image) : null,
+          'time_out_image' => $record->time_out_image ? ($this->storageDisk === 's3' ? env('AWS_URL') . '/' . $record->time_out_image : '/storage/' . $record->time_out_image) : null,
+          'rendered_hours' => $record->rendered_hours,
+          'student' => $record->student
+        ];
+      });
 
     $timeRecordToday = TimeRecord::where('student_id', Auth::id())
       ->where('date', $today)
