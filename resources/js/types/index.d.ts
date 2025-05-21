@@ -175,3 +175,42 @@ export interface Journal {
     description: string;
     [key: string]: string | number;
 }
+
+export type PageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
+    auth: {
+        user: User;
+    };
+    flash: {
+        success: string | null;
+        error: string | null;
+    };
+    ziggy: Config & { location: string };
+};
+
+export type PaginatedData<T> = {
+    data: T[];
+    links: {
+        first: string;
+        last: string;
+        prev: string | null;
+        next: string | null;
+    };
+
+    meta: {
+        previous_page_url: string | null;
+        next_page_url: string | null;
+        current_page: number;
+        from: number;
+        last_page: number;
+        path: string;
+        per_page: number;
+        to: number;
+        total: number;
+
+        links: {
+            url: null | string;
+            label: string;
+            active: boolean;
+        }[];
+    };
+};

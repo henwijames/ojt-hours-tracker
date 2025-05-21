@@ -6,12 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import AppLayout from '@/layouts/app-layout';
-import { BreadcrumbItem, Students, TimeRecord } from '@/types';
+import { BreadcrumbItem, TimeRecord } from '@/types';
 import { formatNumber } from '@/utils/number';
-import { printTimeRecord } from '@/utils/timerecordPrint';
 import { Head, useForm } from '@inertiajs/react';
 import { format, parseISO } from 'date-fns';
-import { Calendar, Loader2, Printer, XCircle } from 'lucide-react';
+import { Calendar, Loader2, XCircle } from 'lucide-react';
 import { FormEventHandler, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -36,24 +35,16 @@ interface PageProps {
     time_in: string;
     time_out: string | null;
     timeRecordToday: string | null;
-    student: Students;
-    auth: {
-        user: {
-            name: string;
-        };
-    };
 }
 
 type TimeInForm = {
     image: File | null;
 };
 
-export default function TimeRecords({ timeRecords, required_hours, completed_hours, time_in, time_out, timeRecordToday, student, auth }: PageProps) {
+export default function TimeRecords({ timeRecords, required_hours, completed_hours, time_in, time_out, timeRecordToday }: PageProps) {
     const { setData, post, processing, errors } = useForm<TimeInForm>({
         image: null,
     });
-
-    const user = auth.user;
 
     const [isTimeInOpen, setIsTimeInOpen] = useState(false);
     const [isTimeOutOpen, setIsTimeOutOpen] = useState(false);
@@ -251,16 +242,6 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
                             </CardContent>
                         </Card>
                     </div>
-                </div>
-                <div className="flex justify-end">
-                    <Button
-                        onClick={() => printTimeRecord({ user, student, timeRecords, required_hours })}
-                        variant="outline"
-                        className="flex items-center gap-2"
-                    >
-                        <Printer className="h-4 w-4" />
-                        Print Records
-                    </Button>
                 </div>
                 <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1">
                     {timeRecords.data.length > 0 ? (
