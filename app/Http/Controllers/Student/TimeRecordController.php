@@ -33,7 +33,7 @@ class TimeRecordController extends Controller
 
   public function index()
   {
-    $student = Auth::user()->student;
+    $student = Auth::user()->student()->with('department', 'company_submission')->first();
     $today = Carbon::now()->toDateString();
 
     $submission = $this->getApprovedSubmission();
@@ -81,7 +81,8 @@ class TimeRecordController extends Controller
       'time_in' => $timeIn,
       'time_out' => $timeOut,
       'timeRecordToday' => $timeRecordToday,
-      'rendered_hours' => $renderedHours
+      'rendered_hours' => $renderedHours,
+      'student' => $student
     ]);
   }
 

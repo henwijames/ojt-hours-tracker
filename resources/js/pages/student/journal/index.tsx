@@ -1,3 +1,4 @@
+import PaginationComponent from '@/components/pagination';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,7 +17,18 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Journals({ journals }: { journals: Journal[] }) {
+interface PageProps {
+    journals: {
+        data: Journal[];
+        current_page: number;
+        last_page: number;
+        prev_page_url: string | null;
+        next_page_url: string | null;
+        links: { label: string; url: string | null; active: boolean }[];
+    };
+}
+
+export default function Journals({ journals }: PageProps) {
     const {
         data,
         setData,
@@ -104,9 +116,9 @@ export default function Journals({ journals }: { journals: Journal[] }) {
                             <CardDescription>Browse through your memories and reflections</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            {journals.length > 0 ? (
+                            {journals.data.length > 0 ? (
                                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                    {journals.map((journal) => (
+                                    {journals.data.map((journal) => (
                                         <Card className="overflow-hidden" key={journal.id}>
                                             <CardHeader className="pb-2">
                                                 <div className="flex items-start justify-between">
@@ -145,6 +157,15 @@ export default function Journals({ journals }: { journals: Journal[] }) {
                         </CardContent>
                     </Card>
                 </div>
+                {journals.data.length > 0 && (
+                    <PaginationComponent
+                        links={journals.links}
+                        prevPageUrl={journals.prev_page_url}
+                        nextPageUrl={journals.next_page_url}
+                        currentPage={journals.current_page}
+                        lastPage={journals.last_page}
+                    />
+                )}
             </div>
         </AppLayout>
     );

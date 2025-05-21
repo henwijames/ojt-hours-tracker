@@ -2,7 +2,7 @@ import PaginationComponent from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
-import { BreadcrumbItem } from '@/types';
+import { BreadcrumbItem, Reminders as Reminder } from '@/types';
 import { formatDate } from '@/utils/date';
 import { Head } from '@inertiajs/react';
 import { AlertCircle, Bell, Calendar, Clock } from 'lucide-react';
@@ -14,23 +14,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-interface Reminders {
-    id: number;
-    title: string;
-    body: string;
-    type: 'reminder';
-    department: {
-        name: string;
-    };
-    program: {
-        name: string;
-    };
-    created_at: string;
-}
-
 interface PageProps {
     reminders: {
-        data: Reminders[];
+        data: Reminder[];
         links: {
             url: string | null;
             label: string;

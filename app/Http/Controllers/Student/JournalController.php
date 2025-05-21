@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\CompanySubmission;
 use App\Models\Journal;
-use App\Models\Student;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -16,9 +17,16 @@ class JournalController extends Controller
      */
     public function index()
     {
-        $journals = Journal::where('student_id', Auth::user()->id)->get();
+        $submission = CompanySubmission::where('student_id', Auth::id())
+            ->where('status', 'approved')
+            ->first();
+        if (!$submission) {
+            return $this->redirectWithError('student.company.index', 'You have not been approved by the company yet.');
+        }
+        $journals = Journal::where('student_id', Auth::id())->paginate(10);
         return Inertia::render('student/journal/index', [
-            'journals' => $journals
+            'journals' => $journals,
+            'submission' => $submission
         ]);
     }
 
@@ -124,5 +132,16 @@ class JournalController extends Controller
             'type' => 'success',
             'message' => 'Journal entry deleted successfully.'
         ]);
+    }
+
+    private function redirectWithError(?string $route, string $message): RedirectResponse
+    {
+        $response = to_route($route)->with([
+            'toast' => true,
+            'type' => 'error',
+            'message' => $message
+        ]);
+
+        return $route ? $response->withErrors(['error' => $message]) : $response;
     }
 }

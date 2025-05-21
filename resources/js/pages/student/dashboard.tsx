@@ -81,7 +81,7 @@ export default function Dashboard({ auth, companySubmission, student, announceme
             <Head title="Dashboard" />
             <div className="@container/main flex flex-1 flex-col gap-4 p-6">
                 <h1 className="mb-2 text-2xl font-semibold">
-                    Welcome, <span className="text-primary capitalize">{user.name}</span> !
+                    Welcome, <span className="text-primary capitalize">{user.name}</span>!
                 </h1>
                 <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-2">
                     <Card>

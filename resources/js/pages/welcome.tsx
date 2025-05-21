@@ -32,13 +32,13 @@ export default function Welcome() {
                             <>
                                 <Link
                                     href={route('login')}
-                                    className="bg-primary hover:bg-primary/80 inline-block rounded-sm border px-5 py-1.5 text-sm leading-normal text-white transition-colors duration-200 ease-linear dark:text-[#EDEDEC] dark:hover:bg-[#3E3E3A] dark:hover:text-[#EDEDEC]"
+                                    className="bg-primary hover:bg-primary/80 inline-block rounded-sm px-5 py-1.5 text-sm leading-normal text-white transition-colors duration-200 ease-linear dark:text-[#EDEDEC] dark:hover:bg-[#3E3E3A] dark:hover:text-[#EDEDEC]"
                                 >
                                     Log in
                                 </Link>
                                 <Link
                                     href={route('register')}
-                                    className="bg-primary hover:bg-primary/80 inline-block rounded-sm border px-5 py-1.5 text-sm leading-normal text-white transition-colors duration-200 ease-linear dark:text-[#EDEDEC] dark:hover:bg-[#3E3E3A] dark:hover:text-[#EDEDEC]"
+                                    className="bg-primary hover:bg-primary/80 inline-block rounded-sm px-5 py-1.5 text-sm leading-normal text-white transition-colors duration-200 ease-linear dark:text-[#EDEDEC] dark:hover:bg-[#3E3E3A] dark:hover:text-[#EDEDEC]"
                                 >
                                     Register
                                 </Link>

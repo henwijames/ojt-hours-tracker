@@ -87,6 +87,7 @@ export interface Students {
         id: number;
         company_name: string;
         status: string;
+        supervisor_name: string;
     } | null;
 }
 
@@ -123,6 +124,19 @@ export interface Announcements {
         program: Program;
         created_at: string;
     }>;
+}
+interface Reminders {
+    id: number;
+    title: string;
+    body: string;
+    type: 'reminder';
+    department: {
+        name: string;
+    };
+    program: {
+        name: string;
+    };
+    created_at: string;
 }
 
 export interface PaginatedResponse<> {
