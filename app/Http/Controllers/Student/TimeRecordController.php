@@ -242,7 +242,7 @@ class TimeRecordController extends Controller
       throw new \Exception('Student record not found.');
     }
 
-    $student->completed_hours = ($student->completed_hours ?? 0) + $hoursWorked;
+    $student->completed_hours = round(($student->completed_hours ?? 0) + $hoursWorked);
     $student->save();
   }
 
