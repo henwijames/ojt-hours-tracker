@@ -92,15 +92,13 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
         } else {
             setProgress(0);
         }
-    }, [completed, hours]);
 
-    useEffect(() => {
         const interval = setInterval(() => {
             setCurrentTime(new Date());
         }, 1000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [completed, hours]);
 
     const timeInSubmit: FormEventHandler = (e) => {
         e.preventDefault();
