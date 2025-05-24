@@ -97,9 +97,6 @@ export default function FaceRecognition() {
             // Compare with stored face
             router.post(route('student.face-recognition.compare'), faceData, {
                 preserveScroll: true,
-                onSuccess: (response: any) => {
-                    console.log(response);
-                },
                 onError: () => {
                     toast.error('Failed to compare face');
                 },
