@@ -12,7 +12,12 @@ class Student extends Model
         'department_id',
         'program_id',
         'status',
-        'completed_hours'
+        'completed_hours',
+        'face_descriptor'
+    ];
+
+    protected $casts = [
+        'face_descriptor' => 'array'
     ];
 
     public function user()

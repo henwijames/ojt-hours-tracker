@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\Student\FaceRecognitionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +21,6 @@ Route::get('/force-logout', function () {
     request()->session()->regenerateToken();
     return redirect('/');
 })->name('force-logout');
-
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

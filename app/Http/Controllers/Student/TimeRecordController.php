@@ -80,7 +80,6 @@ class TimeRecordController extends Controller
       'completed_hours' => (float) $student->completed_hours,
       'time_in' => $timeIn,
       'time_out' => $timeOut,
-      'timeRecordToday' => $timeRecordToday,
       'rendered_hours' => $renderedHours,
       'student' => $student
     ]);

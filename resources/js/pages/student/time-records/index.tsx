@@ -41,7 +41,7 @@ type TimeInForm = {
     image: File | null;
 };
 
-export default function TimeRecords({ timeRecords, required_hours, completed_hours, time_in, time_out, timeRecordToday }: PageProps) {
+export default function TimeRecords({ timeRecords, required_hours, completed_hours, time_in, time_out }: PageProps) {
     const { setData, post, processing, errors } = useForm<TimeInForm>({
         image: null,
     });
@@ -156,18 +156,6 @@ export default function TimeRecords({ timeRecords, required_hours, completed_hou
                             <CardContent className="flex flex-grow flex-col gap-4">
                                 <div className="flex flex-col gap-2">
                                     <h1 className="text-center text-2xl font-bold">{format(currentTime, 'hh:mm:ss a')}</h1>
-                                    <div className="mt-auto flex justify-between">
-                                        <p className="text-muted-foreground items-center">
-                                            {timeRecordToday ? `Clocked In at ${format(parseISO(time_in), 'hh:mm:ss a')}` : 'Not Clocked In'}
-                                        </p>
-                                        {time_in !== null && time_out === null ? (
-                                            <p className="text-muted-foreground items-center">Not Clocked Out Yet</p>
-                                        ) : time_out !== null ? (
-                                            <p className="text-muted-foreground items-center">
-                                                Clocked Out at {format(parseISO(time_out), 'hh:mm:ss a')}
-                                            </p>
-                                        ) : null}
-                                    </div>
                                 </div>
                                 <div className="mt-auto flex items-center gap-2">
                                     <Dialog open={isTimeInOpen} onOpenChange={setIsTimeInOpen}>
