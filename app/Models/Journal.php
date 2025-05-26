@@ -10,7 +10,8 @@ class Journal extends Model
         'title',
         'description',
         'date',
-        'student_id'
+        'student_id',
+        'status'
     ];
 
     public function student()

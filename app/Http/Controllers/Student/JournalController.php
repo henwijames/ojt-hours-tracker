@@ -67,7 +67,8 @@ class JournalController extends Controller
             'student_id' => $user->id,
             'title' => $validate['title'],
             'description' => $validate['description'],
-            'date' => $today
+            'date' => $today,
+            'status' => 'published'
         ]);
 
         if ($journal) {
