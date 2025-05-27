@@ -44,11 +44,7 @@ class FaceRecognitionController extends Controller
             'face_descriptor' => $request->descriptor
         ]);
 
-        return to_route('student.dashboard')->with([
-            'toast' => true,
-            'type' => 'success',
-            'message' => 'Face registered successfully'
-        ]);
+        return redirect()->back();
     }
 
     /**
@@ -93,9 +89,8 @@ class FaceRecognitionController extends Controller
         $storedDescriptor = $student->face_descriptor;
 
         if (!$storedDescriptor) {
-            return back()->with([
-                'toast' => true,
-                'type' => 'error',
+            return response()->json([
+                'success' => false,
                 'message' => 'No face data stored yet'
             ]);
         }
@@ -107,17 +102,19 @@ class FaceRecognitionController extends Controller
         // Typically, a threshold of 0.6 is used for face recognition
         $isMatch = $distance < 0.6;
 
-        if (!$isMatch) {
-            return back()->with([
+        if ($isMatch) {
+            return redirect()->back()->with([
+                'toast' => true,
+                'type' => 'success',
+                'message' => 'Face matched!'
+            ]);
+        } else {
+            return redirect()->back()->with([
                 'toast' => true,
                 'type' => 'error',
                 'message' => 'Face not matched'
             ]);
         }
-
-        return back()->with([
-            'type' => 'success',
-        ]);
     }
 
     private function calculateEuclideanDistance($descriptor1, $descriptor2)
