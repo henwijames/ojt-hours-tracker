@@ -123,16 +123,28 @@ class JournalController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Journal $journal)
     {
-        $journal = Journal::find($id);
-        $journal->delete();
+        // Ensure the journal belongs to the authenticated student
+        if ($journal->student_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
 
-        return redirect()->back()->with([
-            'toast' => true,
-            'type' => 'success',
-            'message' => 'Journal entry deleted successfully.'
-        ]);
+        try {
+            $journal->delete();
+
+            return redirect()->back()->with([
+                'toast' => true,
+                'type' => 'success',
+                'message' => 'Journal entry deleted successfully.'
+            ]);
+        } catch (\Exception) {
+            return redirect()->back()->with([
+                'toast' => true,
+                'type' => 'error',
+                'message' => 'Failed to delete journal entry.'
+            ]);
+        }
     }
 
     private function redirectWithError(?string $route, string $message): RedirectResponse

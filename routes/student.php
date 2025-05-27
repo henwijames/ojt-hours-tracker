@@ -38,8 +38,10 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 
   Route::controller(TimeRecordController::class)->prefix('time-records')->name('time-records.')->group(function () {
     Route::get('/', 'index')->name('index');
-    Route::post('/time-in', 'timeIn')->name('time-in');
-    Route::post('/time-out', 'timeOut')->name('time-out');
+    Route::get('/time-in', 'timeInPage')->name('time-in');
+    Route::get('/time-out', 'timeOutPage')->name('time-out');
+    Route::post('/time-in', 'timeIn')->name('time-in.store');
+    Route::post('/time-out', 'timeOut')->name('time-out.store');
   });
 
   Route::controller(JournalController::class)->prefix('journals')->name('journals.')->group(function () {

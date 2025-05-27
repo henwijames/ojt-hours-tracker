@@ -1,3 +1,12 @@
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -41,6 +50,7 @@ interface PageProps<T = object> {
         program: string;
         status: string;
         completed_hours: number;
+        face_descriptor: number[] | null;
     };
     announcements: {
         id: number;
@@ -60,6 +70,7 @@ interface PageProps<T = object> {
 
 export default function Dashboard({ auth, companySubmission, student, announcements, timeRecords, totalTimeRecords, requiredHours }: PageProps) {
     const [progress, setProgress] = useState(0);
+    const [showFaceDialog, setShowFaceDialog] = useState(false);
 
     const user = auth.user;
     const companyData = companySubmission;
@@ -76,9 +87,30 @@ export default function Dashboard({ auth, companySubmission, student, announceme
         }
     }, [progressValue]);
 
+    useEffect(() => {
+        if (!student.face_descriptor) {
+            setShowFaceDialog(true);
+        }
+    }, [student.face_descriptor]);
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
+            <AlertDialog open={showFaceDialog} onOpenChange={setShowFaceDialog}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Face Registration Required</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            You need to register your face for attendance tracking. Please complete the face registration process to continue.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogAction asChild>
+                            <Link href={route('student.face-recognition.index')}>Register Face</Link>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
             <div className="@container/main flex flex-1 flex-col gap-4 p-6">
                 <h1 className="mb-2 text-2xl font-semibold">
                     Welcome, <span className="text-primary capitalize">{user.name}</span>!

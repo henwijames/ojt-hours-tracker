@@ -85,6 +85,34 @@ class TimeRecordController extends Controller
     ]);
   }
 
+  public function timeInPage()
+  {
+    $student = Auth::user()->student;
+    if (!$student->face_descriptor) {
+      return $this->redirectWithError('student.face-recognition.index', 'Please register your face first before time in.');
+    }
+
+    return Inertia::render('student/time-records/time-in');
+  }
+  public function timeOutPage()
+  {
+    $student = Auth::user()->student;
+
+    if (!$student->face_descriptor) {
+      return $this->redirectWithError('student.face-recognition.index', 'Please register your face first before time out.');
+    }
+
+    $timeRecordToday = TimeRecord::where('student_id', Auth::id())
+      ->where('date', now()->toDateString())
+      ->first();
+
+    if (!$timeRecordToday || !$timeRecordToday->time_in) {
+      return $this->redirectWithError('student.time-records.time-in', 'You must clock in first.');
+    }
+
+    return Inertia::render('student/time-records/time-out');
+  }
+
   public function timeIn(Request $request): RedirectResponse
   {
     try {
@@ -114,9 +142,17 @@ class TimeRecordController extends Controller
         ]);
       }
 
-      return $this->redirectWithSuccess('Time in recorded successfully.');
+      return redirect()->route('student.time-records.index')->with([
+        'toast' => true,
+        'type' => 'success',
+        'message' => 'Time in recorded successfully.'
+      ]);
     } catch (ValidationException $e) {
-      return $this->handleValidationError($e);
+      return back()->with([
+        'toast' => true,
+        'type' => 'error',
+        'message' => $e->getMessage()
+      ])->withErrors($e->errors());
     } catch (\Exception $e) {
       Log::error('Time in error: ' . $e->getMessage(), [
         'user_id' => Auth::id(),
@@ -129,7 +165,11 @@ class TimeRecordController extends Controller
         'storage_disk' => $this->storageDisk,
         'storage_path' => self::STORAGE_PATH
       ]);
-      return $this->redirectWithError(null, 'Failed to record time in: ' . $e->getMessage());
+      return back()->with([
+        'toast' => true,
+        'type' => 'error',
+        'message' => 'Failed to record time in: ' . $e->getMessage()
+      ]);
     }
   }
 
@@ -140,23 +180,67 @@ class TimeRecordController extends Controller
       $today = now()->toDateString();
 
       $record = $this->getTodayTimeRecord($today);
-      $this->validateTimeOut($record);
+      if (!$record) {
+        throw ValidationException::withMessages([
+          'time_out' => 'No time in record found for today.'
+        ]);
+      }
+
+      if (!$record->time_in) {
+        throw ValidationException::withMessages([
+          'time_out' => 'You must clock in first.'
+        ]);
+      }
+
+      if ($record->time_out) {
+        throw ValidationException::withMessages([
+          'time_out' => 'You have already clocked out today.'
+        ]);
+      }
 
       $imagePath = $this->storeTimeRecordImage($request->file('image'));
       $hoursWorked = $this->calculateHoursWorked($record->time_in);
 
-      $this->updateTimeRecord($record, $imagePath);
-      $this->updateStudentHours($hoursWorked);
+      $record->update([
+        'time_out' => now(),
+        'time_out_image' => $imagePath,
+        'rendered_hours' => $hoursWorked
+      ]);
 
-      return $this->redirectWithSuccess('Time out recorded successfully.');
+      $student = Auth::user()->student;
+      $student->completed_hours = round(($student->completed_hours ?? 0) + $hoursWorked);
+      $student->save();
+
+      return redirect()->route('student.time-records.index')->with([
+        'toast' => true,
+        'type' => 'success',
+        'message' => 'Time out recorded successfully.'
+      ]);
     } catch (ValidationException $e) {
-      return $this->handleValidationError($e);
+      Log::warning('Time out validation error: ' . $e->getMessage(), [
+        'user_id' => Auth::id(),
+        'errors' => $e->errors()
+      ]);
+      return back()->with([
+        'toast' => true,
+        'type' => 'error',
+        'message' => $e->getMessage()
+      ])->withErrors($e->errors());
     } catch (\Exception $e) {
       Log::error('Time out error: ' . $e->getMessage(), [
         'user_id' => Auth::id(),
-        'trace' => $e->getTraceAsString()
+        'trace' => $e->getTraceAsString(),
+        'file' => $request->file('image') ? [
+          'name' => $request->file('image')->getClientOriginalName(),
+          'size' => $request->file('image')->getSize(),
+          'mime' => $request->file('image')->getMimeType()
+        ] : null
       ]);
-      return $this->redirectWithError(null, 'Failed to record time out: ' . $e->getMessage());
+      return back()->with([
+        'toast' => true,
+        'type' => 'error',
+        'message' => 'Failed to record time out: ' . $e->getMessage()
+      ]);
     }
   }
 
@@ -260,7 +344,7 @@ class TimeRecordController extends Controller
 
   private function redirectWithSuccess(string $message): RedirectResponse
   {
-    return back()->with([
+    return to_route('student.time-records.index')->with([
       'toast' => true,
       'type' => 'success',
       'message' => $message

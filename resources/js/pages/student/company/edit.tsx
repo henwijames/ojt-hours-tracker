@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { FormEvent } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -118,7 +118,14 @@ export default function EditCompany({ companySubmission }: CompanySubmissionProp
                                         Cancel
                                     </Button>
                                     <Button type="submit" disabled={processing}>
-                                        Update Submission
+                                        {processing ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Update Submission
+                                            </>
+                                        ) : (
+                                            'Update Submission'
+                                        )}
                                     </Button>
                                 </div>
                             </form>
