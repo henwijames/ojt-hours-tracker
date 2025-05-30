@@ -1,3 +1,4 @@
+import PaginationComponent from '@/components/pagination';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, Students, TimeRecord } from '@/types';
@@ -7,7 +8,14 @@ import { Calendar, XCircle } from 'lucide-react';
 
 interface PageProps {
     student: Students;
-    timeRecords: TimeRecord[];
+    timeRecords: {
+        data: TimeRecord[];
+        current_page: number;
+        last_page: number;
+        links: { label: string; url: string | null; active: boolean }[];
+        prev_page_url: string | null;
+        next_page_url: string | null;
+    };
 }
 
 export default function OjtLogs({ student, timeRecords }: PageProps) {
@@ -22,10 +30,7 @@ export default function OjtLogs({ student, timeRecords }: PageProps) {
         },
     ];
 
-    const getImageUrl = (path: string | null): string | undefined => {
-        if (!path) return undefined;
-        return `/storage/${path}`;
-    };
+    console.log(timeRecords);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -39,8 +44,8 @@ export default function OjtLogs({ student, timeRecords }: PageProps) {
                         </CardHeader>
                         <CardContent>
                             <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1">
-                                {timeRecords.length > 0 ? (
-                                    timeRecords.map((timeRecord) => (
+                                {timeRecords.data.length > 0 ? (
+                                    timeRecords.data.map((timeRecord) => (
                                         <Card key={timeRecord.id} className="flex flex-col gap-4 overflow-visible p-4 shadow-md">
                                             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                                 <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
@@ -67,14 +72,14 @@ export default function OjtLogs({ student, timeRecords }: PageProps) {
                                             <div className="mt-2 flex gap-4">
                                                 {timeRecord.time_in_image && (
                                                     <img
-                                                        src={getImageUrl(timeRecord.time_in_image)}
+                                                        src={timeRecord.time_in_image}
                                                         alt="Time in proof"
                                                         className="h-32 w-32 rounded-lg border object-cover shadow-md"
                                                     />
                                                 )}
                                                 {timeRecord.time_out_image && (
                                                     <img
-                                                        src={getImageUrl(timeRecord.time_out_image)}
+                                                        src={timeRecord.time_out_image}
                                                         alt="Time out proof"
                                                         className="h-32 w-32 rounded-lg border object-cover shadow-md"
                                                     />
@@ -93,6 +98,15 @@ export default function OjtLogs({ student, timeRecords }: PageProps) {
                             </div>
                         </CardContent>
                     </Card>
+                    {timeRecords.data.length > 0 && (
+                        <PaginationComponent
+                            links={timeRecords.links}
+                            prevPageUrl={timeRecords.prev_page_url}
+                            nextPageUrl={timeRecords.next_page_url}
+                            currentPage={timeRecords.current_page}
+                            lastPage={timeRecords.last_page}
+                        />
+                    )}
                 </div>
             </div>
         </AppLayout>

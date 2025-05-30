@@ -8,7 +8,7 @@ import { BreadcrumbItem } from '@/types';
 import { formatDate } from '@/utils/date';
 import { acronymText } from '@/utils/string';
 import { Head, router } from '@inertiajs/react';
-import { AlertCircle, CheckCircle2, Clock, Download } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Clock } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -95,10 +95,6 @@ export default function CompanySubmissions({ companySubmissions }: PageProps) {
         router.put(route('coordinator.company-submissions.reject', id));
     };
 
-    const handleViewMoa = (path: string) => {
-        window.open(`/storage/${path}`, '_blank');
-    };
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Company Submissions | Coordinator" />
@@ -159,18 +155,7 @@ export default function CompanySubmissions({ companySubmissions }: PageProps) {
                                             <TableCell>{formatDate(submission.submitted_at)}</TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
-                                                    <Tooltip>
-                                                        <TooltipTrigger asChild>
-                                                            <Button size="sm" variant="outline" onClick={() => handleViewMoa(submission.moa_path)}>
-                                                                <Download className="h-4 w-4" />
-                                                            </Button>
-                                                        </TooltipTrigger>
-                                                        <TooltipContent>
-                                                            <p>Download MOA</p>
-                                                        </TooltipContent>
-                                                    </Tooltip>
-
-                                                    {submission.status === 'pending' && (
+                                                    {submission.status === 'pending' ? (
                                                         <>
                                                             <Tooltip>
                                                                 <TooltipTrigger asChild>
@@ -194,6 +179,8 @@ export default function CompanySubmissions({ companySubmissions }: PageProps) {
                                                                 </TooltipContent>
                                                             </Tooltip>
                                                         </>
+                                                    ) : (
+                                                        <p className="text-muted-foreground text-sm">No action required</p>
                                                     )}
                                                 </div>
                                             </TableCell>

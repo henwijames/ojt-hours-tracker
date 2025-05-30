@@ -101,7 +101,28 @@ class StudentController extends Controller
             ->where('program_id', $coordinator->program_id)
             ->firstOrFail();
 
-        $timeRecords = TimeRecord::where('student_id', $student->user_id)->get();
+        $timeRecords = TimeRecord::where('student_id', $student->user_id)
+            ->latest()
+            ->paginate(10)
+            ->through(function ($record) {
+                $baseUrl = app()->environment('production')
+                    ? env('AWS_URL')
+                    : '/storage';
+
+                $timeInImageUrl = $record->time_in_image ? "{$baseUrl}/{$record->time_in_image}" : null;
+                $timeOutImageUrl = $record->time_out_image ? "{$baseUrl}/{$record->time_out_image}" : null;
+
+                return [
+                    'id' => $record->id,
+                    'date' => $record->date,
+                    'time_in' => $record->time_in,
+                    'time_out' => $record->time_out,
+                    'time_in_image' => $timeInImageUrl,
+                    'time_out_image' => $timeOutImageUrl,
+                    'hours_rendered' => $record->hours_rendered,
+                ];
+            });
+        // dd($timeRecords);
 
         return Inertia::render('coordinator/student-ojt-logs', [
             'student' => $student,

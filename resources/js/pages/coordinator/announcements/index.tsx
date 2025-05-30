@@ -95,51 +95,61 @@ export default function Announcements({ announcements }: { announcements: Pagina
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {announcements.data.map((announcement) => (
-                                <TableRow key={announcement.id}>
-                                    <TableCell>{announcement.type}</TableCell>
-                                    <TableCell>{announcement.title}</TableCell>
-                                    <TableCell>{truncateText(announcement.body)}</TableCell>
-                                    <TableCell>{announcement.department.name}</TableCell>
-                                    <TableCell>{announcement.program.name}</TableCell>
-                                    <TableCell>{formatDate(announcement.created_at)}</TableCell>
-                                    <TableCell className="w-[100px]">
-                                        <div className="flex items-center gap-2">
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button size="sm" variant="outline">
-                                                        <Eye className="h-4 w-4" />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p className="text-white">View</p>
-                                                </TooltipContent>
-                                            </Tooltip>
+                            {announcements.data.length > 0 ? (
+                                announcements.data.map((announcement) => (
+                                    <TableRow key={announcement.id}>
+                                        <TableCell>{announcement.type}</TableCell>
+                                        <TableCell>{announcement.title}</TableCell>
+                                        <TableCell>{truncateText(announcement.body)}</TableCell>
+                                        <TableCell>{announcement.department.name}</TableCell>
+                                        <TableCell>{announcement.program.name}</TableCell>
+                                        <TableCell>{formatDate(announcement.created_at)}</TableCell>
+                                        <TableCell className="w-[100px]">
+                                            <div className="flex items-center gap-2">
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button size="sm" variant="outline">
+                                                            <Eye className="h-4 w-4" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p className="text-white">View</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
 
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button size="sm" variant="outline">
-                                                        <Pencil className="h-4 w-4" />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p className="text-white">Edit</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </div>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button size="sm" variant="outline">
+                                                            <Pencil className="h-4 w-4" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p className="text-white">Edit</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={7} className="text-center">
+                                        No announcements found.
                                     </TableCell>
                                 </TableRow>
-                            ))}
+                            )}
                         </TableBody>
                     </Table>
+                    {announcements.data.length > 0 && (
+                        <PaginationComponent
+                            links={announcements.links}
+                            prevPageUrl={announcements.prev_page_url}
+                            nextPageUrl={announcements.next_page_url}
+                            currentPage={announcements.current_page}
+                            lastPage={announcements.last_page}
+                        />
+                    )}
                 </div>
-                <PaginationComponent
-                    links={announcements.links}
-                    prevPageUrl={announcements.prev_page_url}
-                    nextPageUrl={announcements.next_page_url}
-                    currentPage={announcements.current_page}
-                    lastPage={announcements.last_page}
-                />
 
                 <Dialog open={isAddModal} onOpenChange={setIsAddModal}>
                     <DialogContent>
